@@ -1,6 +1,8 @@
+$ npm install --save @emailjs/browser
 {
   "name": "attachmentscnh",
   "version": "1.0.0",
+
   "description": "��#\u0000 \u0000a\u0000t\u0000t\u0000a\u0000c\u0000h\u0000m\u0000e\u0000n\u0000t\u0000s\u0000c\u0000n\u0000h\u0000\r\u0000 \u0000",
   "main": "server.js",
   "scripts": {
