@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Attachments Table Editor (Firebase)</title>
+<style>
+    body { font-family: Arial; background: #111; color: #ff9900; padding: 20px; }
+    h1 { text-align: center; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #222; border: 2px solid #ff9900; border-radius: 10px; overflow: hidden; }
+    th, td { padding: 10px; border-bottom: 1px solid #444; }
+    th { background: #333; text-align: left; }
+    input, select { width: 95%; padding: 6px; background: #000; border: 1px solid #ff9900; border-radius: 6px; color: #ff9900; }
+    button { background: #ff9900; color: #000; font-weight: bold; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+    button:hover { background: #ffaa22; }
+    .delete-btn { background: #cc0000; color: white; }
+    .delete-btn:hover { background: #ff0000; }
+    .add-row { margin-top: 20px; display: inline-block; }
+</style>
+</head>
+<body>
+
+<h1>Attachments Table Editor</h1>
+
+<table id="fieldsTable">
+    <thead>
+        <tr>
+            <th>Field Name</th>
+            <th>Field Type</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="fieldsBody"></tbody>
+</table>
+
+<h3>Add New Field</h3>
+<input type="text" id="newFieldName" placeholder="Field name">
+<select id="newFieldType">
+    <option value="String">String</option>
+    <option value="Numeric">Numeric</option>
+    <option value="Boolean">Boolean</option>
+    <option value="Array">Array</option>
+</select>
+<button class="add-row" id="addFieldBtn">Add Field</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+import { 
+    getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteField 
+} from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+
+// --- Firebase Config ---
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "attachments-df167",
+  storageBucket: "attachments-df167.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const AttachmentsCol = collection(db, "Attachments");
+
+// =======================================================
+// ================  LOAD TABLE  =========================
+// =======================================================
+async function loadTable() {
+    try {
+        const snapshot = await getDocs(AttachmentsCol);
+        const tbody = document.getElementById("fieldsBody");
+        tbody.innerHTML = "";
+
+        const uniqueFields = new Set();
+
+        // Collect all unique field names from all documents
+        snapshot.docs.forEach(docItem => {
+            const data = docItem.data();
+            Object.keys(data).forEach(key => uniqueFields.add(key));
+        });
+
+        // Render unique fields
+        uniqueFields.forEach(fieldName => {
+            const tr = document.createElement("tr");
+
+            // Field Name
+            const tdName = document.createElement("td");
+            const inputName = document.createElement("input");
+            inputName.type = "text";
+            inputName.value = fieldName;
+            inputName.disabled = true;
+            tdName.appendChild(inputName);
+            tr.appendChild(tdName);
+
+            // Field Type - auto detect
+            const tdType = document.createElement("td");
+            const selectType = document.createElement("select");
+            selectType.disabled = true;
+
+            ["String", "Numeric", "Boolean", "Array"].forEach(opt => {
+                const option = document.createElement("option");
+                option.value = opt;
+                option.textContent = opt;
+
+                for (const docItem of snapshot.docs) {
+                    const value = docItem.data()[fieldName];
+                    if (value !== undefined) {
+                        if (typeof value === "string" && opt === "String") option.selected = true;
+                        if (typeof value === "number" && opt === "Numeric") option.selected = true;
+                        if (typeof value === "boolean" && opt === "Boolean") option.selected = true;
+                        if (Array.isArray(value) && opt === "Array") option.selected = true;
+                        break;
+                    }
+                }
+
+                selectType.appendChild(option);
+            });
+
+            tdType.appendChild(selectType);
+            tr.appendChild(tdType);
+
+            // ACTIONS
+            const tdAction = document.createElement("td");
+
+            // EDIT FIELD NAME
+            const editBtn = document.createElement("button");
+            editBtn.textContent = "Edit";
+            editBtn.addEventListener("click", async () => {
+                const newName = prompt("Enter new field name:", fieldName);
+                if (!newName || newName.trim() === "") return;
+
+                try {
+                    for (const docItem of snapshot.docs) {
+                        const data = docItem.data();
+
+                        if (data.hasOwnProperty(fieldName)) {
+                            const ref = doc(db, "Attachments", docItem.id);
+
+                            const updated = {};
+                            updated[newName] = data[fieldName];
+                            updated[fieldName] = deleteField(); // delete old key
+
+                            await updateDoc(ref, updated);
+                        }
+                    }
+
+                    loadTable();
+                } catch(err) {
+                    console.error("Error renaming field:", err);
+                    alert("Failed to rename field.");
+                }
+            });
+            tdAction.appendChild(editBtn);
+
+            // DELETE FIELD
+            const delBtn = document.createElement("button");
+            delBtn.textContent = "Delete";
+            delBtn.classList.add("delete-btn");
+
+            delBtn.addEventListener("click", async () => {
+                if (!confirm(`Delete field "${fieldName}" from ALL documents?`)) return;
+
+                try {
+                    const snap = await getDocs(AttachmentsCol);
+
+                    for (const d of snap.docs) {
+                        const data = d.data();
+
+                        if (data.hasOwnProperty(fieldName)) {
+                            const ref = doc(db, "Attachments", d.id);
+
+                            await updateDoc(ref, {
+                                [fieldName]: deleteField()
+                            });
+                        }
+                    }
+
+                    loadTable();
+                } catch(err) {
+                    console.error("FAILED TO DELETE FIELD:", err);
+                    alert("Failed to delete field.");
+                }
+            });
+
+            tdAction.appendChild(delBtn);
+
+            tr.appendChild(tdAction);
+            tbody.appendChild(tr);
+        });
+
+    } catch (err) {
+        console.error("Failed to load Attachments:", err);
+        alert("Failed to load Attachments. Check console.");
+    }
+}
+
+// =======================================================
+// ================  ADD NEW FIELD  ======================
+// =======================================================
+async function addField() {
+    const nameInput = document.getElementById("newFieldName");
+    const fieldName = nameInput.value.trim();
+    const fieldType = document.getElementById("newFieldType").value;
+
+    if (!fieldName) {
+        alert("Field name cannot be empty.");
+        return;
+    }
+
+    // Determine default value by type
+    let defaultValue =
+        fieldType === "String" ? "" :
+        fieldType === "Numeric" ? 0 :
+        fieldType === "Boolean" ? false :
+        fieldType === "Array" ? [] : null;
+
+    try {
+        const snapshot = await getDocs(AttachmentsCol);
+
+        // Add the new field to every existing document
+        for (const d of snapshot.docs) {
+            const ref = doc(db, "Attachments", d.id);
+
+            await updateDoc(ref, {
+                [fieldName]: defaultValue
+            });
+        }
+
+        nameInput.value = "";
+        loadTable(); // Refresh UI
+    } catch (err) {
+        console.error("Error adding field:", err);
+        alert("Failed to add field.");
+    }
+}
+
+
+document.getElementById("addFieldBtn").addEventListener("click", addField);
+
+// Initial load
+loadTable();
+</script>
+
+</body>
+</html>

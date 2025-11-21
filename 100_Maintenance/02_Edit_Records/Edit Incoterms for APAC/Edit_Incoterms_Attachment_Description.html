@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Attachment Fields by Family</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; background: #f7f7f7; padding-bottom: 100px; }
+h1 { text-align: center; margin-bottom: 10px; }
+select { display: block; margin: 0 auto 20px auto; padding: 6px 10px; font-size: 14px; }
+ul { list-style: none; padding: 0; }
+li { background: #fff; margin-bottom: 8px; padding: 10px; border-radius: 6px; }
+input { padding: 6px 8px; width: 220px; margin-top: 10px; display: block; margin-left: auto; margin-right: auto; }
+button { padding: 8px 14px; margin-top: 10px; cursor: pointer; border: none; border-radius: 5px; }
+#saveAllBtn { background-color: #007bff; color: white; font-size: 14px; display: none; }
+#saveAllBtn:hover { background-color: #0056b3; }
+footer { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #f8f9fa; padding: 10px 0; text-align: center; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); z-index: 100; }
+#backButton { background-color: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; cursor: pointer; }
+#backButton:hover { background-color: #5a6268; }
+.center-container { text-align: center; margin-top: 20px; }
+</style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<h1 id="pageTitle">Edit Fields by Attachment_Family_No</h1>
+
+<select id="familySelect">
+  <option value="">Loading families...</option>
+</select>
+
+<ul id="partList"></ul>
+
+<div class="center-container">
+  <input type="text" id="incoterms" placeholder="Incoterms" style="display:none;">
+  <input type="text" id="availability" placeholder="Availability" style="display:none;">
+  <input type="text" id="location" placeholder="Shipping Location" style="display:none;">
+  <button id="saveAllBtn">💾 Save All Changes</button>
+</div>
+
+<script>
+// Firebase config
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "attachments-df167",
+  storageBucket: "attachments-df167.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const familySelect = document.getElementById("familySelect");
+const partList = document.getElementById("partList");
+const pageTitle = document.getElementById("pageTitle");
+const incotermsInput = document.getElementById("incoterms");
+const availabilityInput = document.getElementById("availability");
+const locationInput = document.getElementById("location");
+const saveAllBtn = document.getElementById("saveAllBtn");
+
+let currentDocs = [];
+
+// Load unique families
+async function loadAttachmentFamilies() {
+  try {
+    const snapshot = await db.collection("Attachments").get();
+    const families = {};
+    snapshot.docs.forEach(doc => {
+      const data = doc.data();
+      if (data.Attachment_Family_No) {
+        families[data.Attachment_Family_No] = data.Attachment_Description || "";
+      }
+    });
+
+    familySelect.innerHTML = "<option value=''>--Select Attachment_Family_No--</option>";
+    Object.entries(families).sort((a,b)=> a[0]-b[0]).forEach(([famNo, desc])=>{
+      const opt = document.createElement("option");
+      opt.value = famNo;
+      opt.textContent = `#${famNo} - ${desc}`;
+      familySelect.appendChild(opt);
+    });
+  } catch(err) {
+    console.error(err);
+    familySelect.innerHTML = "<option value=''>Error loading families</option>";
+  }
+}
+
+// Load all parts for a family
+async function loadFamilyParts(familyNo) {
+  partList.innerHTML = "Loading...";
+  incotermsInput.style.display = "none";
+  availabilityInput.style.display = "none";
+  locationInput.style.display = "none";
+  saveAllBtn.style.display = "none";
+  pageTitle.textContent = "Edit Fields by Attachment_Family_No";
+
+  if (!familyNo) { partList.innerHTML=""; return; }
+
+  try {
+    const snapshot = await db.collection("Attachments")
+      .where("Attachment_Family_No", "==", Number(familyNo))
+      .get();
+
+    if (snapshot.empty) {
+      partList.innerHTML = "<li>No parts found.</li>";
+      return;
+    }
+
+    currentDocs = snapshot.docs.map(doc=>({id: doc.id, data: doc.data()}));
+    currentDocs.sort((a,b)=> String(a.data.Part_Number??"").localeCompare(String(b.data.Part_Number??"")));
+
+    const description = currentDocs[0].data.Attachment_Description || "";
+    pageTitle.textContent = `Attachment Family #${familyNo} - ${description}`;
+
+    partList.innerHTML = "";
+    currentDocs.forEach(docObj=>{
+      const data = docObj.data;
+      li = document.createElement("li");
+      li.innerHTML = `<b>${data.Part_Number||"N/A"}</b> <small style="color:gray;">Incoterms: ${data.Incoterms||""}, Availability: ${data.Availability||""}, Location: ${data.Shipping_Location||""}</small>`;
+      partList.appendChild(li);
+    });
+
+    // Pre-fill first doc's values
+    incotermsInput.value = currentDocs[0].data.Incoterms || "";
+    availabilityInput.value = currentDocs[0].data.Availability || "";
+    locationInput.value = currentDocs[0].data.Shipping_Location || "";
+
+    incotermsInput.style.display = "block";
+    availabilityInput.style.display = "block";
+    locationInput.style.display = "block";
+    saveAllBtn.style.display = "inline-block";
+
+  } catch(err) {
+    console.error(err);
+    partList.innerHTML = `<li style="color:red;">Error loading parts: ${err.message}</li>`;
+  }
+}
+
+// Save all fields for current family
+saveAllBtn.addEventListener("click", async ()=>{
+  const incotermsVal = incotermsInput.value.trim();
+  const availabilityVal = availabilityInput.value.trim();
+  const locationVal = locationInput.value.trim();
+
+  if (!incotermsVal && !availabilityVal && !locationVal){
+    alert("Please enter at least one value to save.");
+    return;
+  }
+
+  if (!confirm(`Save changes to all ${currentDocs.length} parts?`)) return;
+
+  try {
+    for(const docObj of currentDocs){
+      await db.collection("Attachments").doc(docObj.id).update({
+        Incoterms: incotermsVal,
+        Availability: availabilityVal,
+        Shipping_Location: locationVal
+      });
+    }
+    alert(`✅ Updated ${currentDocs.length} records successfully!`);
+    loadFamilyParts(familySelect.value); // reload list
+  } catch(err){
+    alert("❌ Error: "+err.message);
+  }
+});
+
+familySelect.addEventListener("change", ()=> loadFamilyParts(familySelect.value));
+
+// Initial load
+loadAttachmentFamilies();
+</script>
+
+<footer style="text-align:center; padding:20px;"> 
+  <button onclick="window.location.href='../../../02_Maintenance.html'" 
+          style="background: #e58e1a; color: #000; padding:10px 20px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">
+   ⬅ Back to Home
+  </button> 
+</footer>
+</body>
+</html>
