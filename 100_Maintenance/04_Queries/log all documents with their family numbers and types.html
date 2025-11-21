@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Check Attachment Parts</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<h1 style="text-align:center;">Check Attachment Parts for a Family Number</h1>
+
+<div style="text-align:center; margin-top:20px;">
+  <button id="checkBtn" style="padding:10px 20px; background:#28a745; color:white; border:none; border-radius:6px; cursor:pointer;">
+    Log All Attachment Family Numbers
+  </button>
+  <p id="status"></p>
+</div>
+
+<script>
+// 1️⃣ Firebase configuration
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// 2️⃣ Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// 3️⃣ Function to log all Attachment_Family_No
+async function logAllFamilyNos() {
+  const status = document.getElementById("status");
+  status.textContent = "⏳ Loading documents...";
+
+  try {
+    const snap = await db.collection("Attachments").get();
+    if (snap.empty) {
+      status.textContent = "⚠️ No documents found in Attachments collection.";
+      console.warn("No documents found.");
+      return;
+    }
+
+    snap.forEach(doc => {
+      const data = doc.data();
+      console.log(`Doc: ${doc.id}, Part_Number: ${data.Part_Number}, Attachment_Family_No: ${data.Attachment_Family_No}, Type: ${typeof data.Attachment_Family_No}`);
+    });
+
+    status.textContent = `✅ Loaded ${snap.size} documents. Check console for details.`;
+  } catch (err) {
+    console.error("Error fetching documents:", err);
+    status.textContent = `❌ Error: ${err.message}`;
+  }
+}
+
+// 4️⃣ Attach button
+document.getElementById("checkBtn").addEventListener("click", logAllFamilyNos);
+</script>
+
+<footer style="text-align:center; padding:20px;">
+  <button 
+    onclick="window.location.href='../../../02_Maintenance.html'"
+    style="background:#e58e1a; color:#000; padding:10px 20px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;"
+  >
+    ⬅ Back to Home
+  </button>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Attachment Description by Family Number</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #f7f7f7;
+  padding-bottom: 120px;
+}
+h1 { text-align: center; margin-bottom: 20px; }
+label { font-weight: bold; }
+select, input { padding: 6px; font-size: 14px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  margin-top: 15px;
+  font-size: 13px;
+}
+th, td {
+  border: 1px solid #ccc;
+  padding: 6px;
+  text-align: center;
+}
+th { background: #eaeaea; position: sticky; top: 0; }
+tr:nth-child(even) { background: #fafafa; }
+
+button {
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 14px;
+}
+#saveAllBtn {
+  background-color: #007bff;
+  color: white;
+  margin-top: 15px;
+  display: none;
+}
+#saveAllBtn:hover { background-color: #0056b3; }
+
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #f8f9fa;
+  padding: 10px 0;
+  text-align: center;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
+
+.center-container { text-align: center; margin-top: 20px; }
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<h1>Edit Attachment Description for Entire Family</h1>
+
+<div class="center-container">
+  <button id="fixBtn" style="background:#28a745; color:white;">🔧 Fix String Attachment_Family_No to Number</button>
+  <p id="fixStatus"></p>
+</div>
+
+<script>
+// Firebase client config
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "attachments-df167",
+  storageBucket: "attachments-df167.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Function to fix Attachment_Family_No
+async function fixAttachmentFamilyNo() {
+  const status = document.getElementById("fixStatus");
+  status.textContent = "⏳ Checking documents...";
+
+  try {
+    const snap = await db.collection("Attachments").get();
+    let count = 0;
+
+    for (const doc of snap.docs) {
+      const data = doc.data();
+      const famNo = data.Attachment_Family_No;
+
+      if (typeof famNo === "string" && !isNaN(Number(famNo))) {
+        await db.collection("Attachments").doc(doc.id).update({
+          Attachment_Family_No: Number(famNo)
+        });
+        console.log(`Updated doc ${doc.id}: "${famNo}" → ${Number(famNo)}`);
+        count++;
+      }
+    }
+
+    status.textContent = `✅ Done! Updated ${count} documents. Check console for details.`;
+  } catch (err) {
+    console.error(err);
+    status.textContent = `❌ Error: ${err.message}`;
+  }
+}
+
+// Attach button
+document.getElementById("fixBtn").addEventListener("click", fixAttachmentFamilyNo);
+</script>
+
+<footer style="text-align: center; padding: 20px;">
+  <button 
+    onclick="window.location.href='../../../02_Maintenance.html'"
+    style="
+      background: #e58e1a;
+      color: #000000;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    "
+  >
+    ⬅ Back to Home
+  </button>
+</footer>
+
+</body>
+</html>

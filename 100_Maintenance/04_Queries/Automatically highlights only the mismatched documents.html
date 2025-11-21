@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Check Attachment Parts</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<h1 style="text-align:center;">Check Attachment Parts for a Family Number</h1>
+
+<div class="center-container">
+  <label for="familyNoInput">Attachment Family No:</label>
+  <input type="number" id="familyNoInput" value="35" style="padding:6px; width:100px;">
+  <button id="checkBtn" style="padding:6px 12px; margin-left:5px;">Check Parts</button>
+  <p id="status"></p>
+</div>
+
+<script>
+// 1️⃣ Initialize Firebase
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// 2️⃣ Function to check family parts
+async function checkFamilyParts(familyNo) {
+  const status = document.getElementById("status");
+  status.textContent = "⏳ Loading parts...";
+
+  try {
+    const snap = await db.collection("Attachments").get();
+    const results = [];
+
+    snap.forEach(doc => {
+      const data = doc.data();
+      const famNo = data.Attachment_Family_No;
+
+      // Allow numeric or string match
+      if (famNo == familyNo) {
+        results.push({
+          docId: doc.id,
+          Part_Number: data.Part_Number,
+          Attachment_Family_No: famNo,
+          type: typeof famNo
+        });
+      }
+    });
+
+    if (results.length === 0) {
+      status.textContent = `⚠️ No parts found for Family No = ${familyNo}`;
+      console.warn("No parts found");
+    } else {
+      status.textContent = `✅ Found ${results.length} parts. Check console for details.`;
+      console.log(`Parts for Attachment_Family_No = ${familyNo}:`);
+      results.forEach(r => {
+        console.log(`Doc: ${r.docId}, Part_Number: ${r.Part_Number}, Family_No: ${r.Attachment_Family_No} (${r.type})`);
+      });
+    }
+
+  } catch (err) {
+    console.error("Error fetching parts:", err);
+    status.textContent = `❌ Error: ${err.message}`;
+  }
+}
+
+// 3️⃣ Attach button click
+document.getElementById("checkBtn").addEventListener("click", () => {
+  const familyNo = document.getElementById("familyNoInput").value;
+  if (familyNo) checkFamilyParts(familyNo);
+});
+</script>
+
+<footer style="text-align:center; padding:20px;">
+  <button 
+    onclick="window.location.href='../../../02_Maintenance.html'"
+    style="background:#e58e1a; color:#000; padding:10px 20px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;"
+  >
+    ⬅ Back to Home
+  </button>
+</footer>
+
+</body>
+</html>
