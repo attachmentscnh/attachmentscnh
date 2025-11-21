@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Attachment Data</title>
+
+<style>
+body { font-family: Arial; margin: 20px; background: #f7f7f7; }
+h1 { text-align: center; margin-bottom: 10px; }
+
+select, input {
+    display: block;
+    margin: 10px auto;
+    padding: 8px;
+    font-size: 15px;
+    width: 260px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 6px;
+    display: block;
+    margin: 20px auto;
+    cursor: pointer;
+}
+
+button:hover { background-color: #0056b3; }
+
+.container {
+    background: white;
+    padding: 20px;
+    max-width: 420px;
+    margin: 20px auto;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+</style>
+
+<!-- Firebase (Realtime Database Compatible SDK) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+</head>
+
+<body>
+
+<h1>Edit Incoterms, Availability & Location</h1>
+
+<div class="container">
+
+    <select id="attachmentSelect">
+        <option value="">Loading...</option>
+    </select>
+
+    <input type="text" id="incoterms" placeholder="Incoterms">
+    <input type="text" id="availability" placeholder="Availability">
+    <input type="text" id="location" placeholder="Location">
+
+    <button id="saveBtn">💾 Save Changes</button>
+
+</div>
+
+<script>
+// -------------------------------
+// 🔥 Firebase Configuration
+// -------------------------------
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL: "YOUR_REALTIME_DB_URL",
+  projectId: "attachments-df167",
+  storageBucket: "attachments-df167.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const attachmentSelect = document.getElementById("attachmentSelect");
+const incotermsInput = document.getElementById("incoterms");
+const availabilityInput = document.getElementById("availability");
+const locationInput = document.getElementById("location");
+
+// Store record locations for saving
+let attachmentMap = {};
+
+
+// ---------------------------------------------------------
+// ✅ Load ALL Attachments sorted by Attachment_Family_No
+// ---------------------------------------------------------
+function loadAttachments() {
+    db.ref("Attachments").once("value", snapshot => {
+        const data = snapshot.val();
+        if (!data) return;
+
+        const arr = Object.keys(data).map(id => ({
+            id,
+            ...data[id]
+        }));
+
+        // Sort ascending by Attachment_Family_No
+        arr.sort((a,b) => (a.Attachment_Family_No ?? 0) - (b.Attachment_Family_No ?? 0));
+
+        attachmentSelect.innerHTML = `<option value="">-- Select Attachment --</option>`;
+        attachmentMap = {};
+
+        arr.forEach(item => {
+            const desc = item.Attachment_Description || "Unknown";
+            const famNo = item.Attachment_Family_No || "-";
+
+            const option = document.createElement("option");
+            option.value = item.id;
+            option.textContent = `#${famNo} - ${desc}`;
+
+            attachmentSelect.appendChild(option);
+            attachmentMap[item.id] = item;
+        });
+    });
+}
+
+
+// ---------------------------------------------------------
+// ✅ Load selected record into input boxes
+// ---------------------------------------------------------
+attachmentSelect.addEventListener("change", () => {
+    const id = attachmentSelect.value;
+    if (!id) return;
+
+    const item = attachmentMap[id];
+
+    incotermsInput.value = item.Incoterms || "";
+    availabilityInput.value = item.Availability || "";
+    locationInput.value = item.Location || "";
+});
+
+
+// ---------------------------------------------------------
+// ✅ Save changes back to Realtime Database
+// ---------------------------------------------------------
+document.getElementById("saveBtn").addEventListener("click", () => {
+    const id = attachmentSelect.value;
+    if (!id) {
+        alert("Please select an attachment.");
+        return;
+    }
+
+    const updates = {
+        Incoterms: incotermsInput.value.trim(),
+        Availability: availabilityInput.value.trim(),
+        Location: locationInput.value.trim()
+    };
+
+    db.ref(`Attachments/${id}`).update(updates)
+        .then(() => alert("✅ Updated successfully!"))
+        .catch(err => alert("❌ Error: " + err.message));
+});
+
+
+// Initial load
+loadAttachments();
+</script>
+
+</body>
+</html>
+
