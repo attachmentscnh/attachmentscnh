@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Attachments Field & Type Viewer</title>
+<style>
+    body { font-family: Arial; background: #111; color: #ff9900; padding: 20px; }
+    h1 { text-align: center; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #222; border: 2px solid #ff9900; border-radius: 10px; overflow: hidden; }
+    th, td { padding: 10px; border-bottom: 1px solid #444; }
+    th { background: #333; text-align: left; }
+</style>
+</head>
+<body>
+
+<h1>All Fields in Attachments</h1>
+
+<table id="fieldsTable">
+    <thead>
+        <tr>
+            <th>Field Name</th>
+            <th>Detected Type(s)</th>
+        </tr>
+    </thead>
+    <tbody id="fieldsBody"></tbody>
+</table>
+
+<div id="messageBox" style="margin-top: 10px; height: 20px;"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+
+// --- Firebase Config ---
+// Replace these placeholder strings with your real Firebase project config
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "attachments-df167",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// Initialize Firebase (per Firebase docs guidance). :contentReference[oaicite:0]{index=0}
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const AttachmentsCol = collection(db, "Attachments");
+
+// ----------------------
+// Determine type string for a value
+// ----------------------
+function detectType(value) {
+    if (value === null) return "Null";
+    if (Array.isArray(value)) return "Array";
+    const t = typeof value;
+    if (t === "object") return "Object";
+    if (t === "number") return "Numeric";
+    if (t === "boolean") return "Boolean";
+    if (t === "string") return "String";
+    return t; // fallback
+}
+
+// ----------------------
+// Load all fields and types
+// ----------------------
+async function loadFieldsAndTypes() {
+    try {
+        const snapshot = await getDocs(AttachmentsCol);
+        const tbody = document.getElementById("fieldsBody");
+        tbody.innerHTML = "";
+
+        if (snapshot.empty) {
+            showMessage("No documents found in Attachments.", true);
+            return;
+        }
+
+        // { fieldName: Set of detected types }
+        const fieldTypes = {};
+
+        snapshot.docs.forEach(docItem => {
+            const data = docItem.data();
+            Object.keys(data).forEach(key => {
+                const val = data[key];
+                const typeStr = detectType(val);
+
+                if (!fieldTypes[key]) fieldTypes[key] = new Set();
+                fieldTypes[key].add(typeStr);
+            });
+        });
+
+        // Alphabetical order of fields
+        const sortedFields = Object.keys(fieldTypes).sort((a, b) => a.localeCompare(b));
+
+        sortedFields.forEach(field => {
+            const tr = document.createElement("tr");
+
+            const tdName = document.createElement("td");
+            tdName.textContent = field;
+            tr.appendChild(tdName);
+
+            const tdType = document.createElement("td");
+            // join multiple types with comma
+            tdType.textContent = Array.from(fieldTypes[field]).join(", ");
+            tr.appendChild(tdType);
+
+            tbody.appendChild(tr);
+        });
+
+    } catch (err) {
+        console.error(err);
+        showMessage("Failed to load fields. See console.", true);
+    }
+}
+
+// ----------------------
+// Helper to show messages
+// ----------------------
+function showMessage(msg, isError = false) {
+    const box = document.getElementById("messageBox");
+    box.textContent = msg;
+    box.style.color = isError ? "red" : "lightgreen";
+    box.style.fontWeight = "bold";
+    setTimeout(() => { box.textContent = ""; }, 3000);
+}
+
+// Initial load
+loadFieldsAndTypes();
+</script>
+
+</body>
+</html>
+
+
+

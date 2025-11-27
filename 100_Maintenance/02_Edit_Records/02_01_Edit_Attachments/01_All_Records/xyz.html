@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Part Number Data</title>
+<style>
+  body { font-family: Arial; background: #111; color: #ff9900; padding: 20px; }
+  h1 { text-align: center; margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #222; border: 2px solid #ff9900; border-radius: 10px; }
+  th, td { padding: 8px; border-bottom: 1px solid #444; }
+  th { background: #333; text-align: left; }
+  input { width: 90%; padding: 5px; background: #000; border: 1px solid #ff9900; border-radius: 5px; color: #ff9900; }
+  button { background: #ff9900; color: #000; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; margin-top: 10px; }
+  button:hover { background: #ffaa22; }
+</style>
+</head>
+<body>
+
+<h1>Edit Part Number Data</h1>
+
+<label>Family Number:</label> <input id="famInput" type="text" placeholder="e.g., 52" style="width:100px;"> <button onclick="loadFamily()">Load</button>
+
+<div id="messageBox" style="margin-top:10px;height:20px;"></div>
+
+<table id="dataTable" style="display:none;">
+  <thead id="dataHead"></thead>
+  <tbody id="dataBody"></tbody>
+</table>
+
+<button id="saveBtn" onclick="saveChanges()" style="display:none;">Save Changes</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const AttachmentsCol = collection(db, "Attachments");
+
+// Only essential fields
+const fieldsList = ["Part_Number","Duty","Flow_Type","Height","Diameter","Weight","Torque_Range","Speed_Range","Suitable_Carrier"];
+
+let currentDocs = [];
+
+window.loadFamily = async function () {
+  let famNo = document.getElementById("famInput").value.trim();
+  if (!famNo) return showMessage("Enter a family number", true);
+
+  famNo = Number(famNo); // Convert to number
+  if (isNaN(famNo)) return showMessage("Invalid family number", true);
+
+  try {
+    const q = query(AttachmentsCol, where("Attachment_Family_No","==",famNo));
+    const snap = await getDocs(q);
+
+    if (snap.empty) {
+      showMessage("No documents found.", true);
+      document.getElementById("dataTable").style.display = "none";
+      document.getElementById("saveBtn").style.display = "none";
+      return;
+    }
+
+    currentDocs = snap.docs.map(d => ({id:d.id, data:d.data()}));
+    populateTable(currentDocs);
+
+  } catch (err) {
+    console.error(err);
+    showMessage("Error loading family data.", true);
+  }
+};
+
+function populateTable(docs){
+  const thead = document.getElementById("dataHead");
+  const tbody = document.getElementById("dataBody");
+  thead.innerHTML = ""; 
+  tbody.innerHTML = "";
+
+  // header
+  const trHead = document.createElement("tr");
+  fieldsList.forEach(f=>{
+      const th = document.createElement("th"); 
+      th.textContent = f;
+      trHead.appendChild(th);
+  });
+  thead.appendChild(trHead);
+
+  // body
+  docs.forEach(docItem=>{
+      const tr = document.createElement("tr");
+      fieldsList.forEach(f=>{
+          const td = document.createElement("td");
+          const input = document.createElement("input");
+          input.value = docItem.data[f] || "";
+          input.dataset.docid = docItem.id;
+          input.dataset.field = f;
+          td.appendChild(input);
+          tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+  });
+
+  document.getElementById("dataTable").style.display = "table";
+  document.getElementById("saveBtn").style.display = "inline-block";
+}
+
+window.saveChanges = async function(){
+  const inputs = document.querySelectorAll("#dataBody input");
+  const updatesMap = {};
+
+  inputs.forEach(inp=>{
+      const docId = inp.dataset.docid;
+      const field = inp.dataset.field;
+      const val = inp.value;
+
+      if(!updatesMap[docId]) updatesMap[docId]={};
+      updatesMap[docId][field] = val;
+  });
+
+  try{
+      for(const docId in updatesMap){
+          const ref = doc(db,"Attachments",docId);
+          await updateDoc(ref, updatesMap[docId]);
+      }
+      showMessage("Changes saved!", false);
+  } catch(err){
+      console.error(err);
+      showMessage("Failed to save changes.", true);
+  }
+};
+
+function showMessage(msg,isError=false){
+  const box = document.getElementById("messageBox");
+  box.textContent = msg;
+  box.style.color = isError ? "red" : "lightgreen";
+  box.style.fontWeight = "bold";
+  setTimeout(()=>box.textContent="",3000);
+}
+</script>
+
+</body>
+</html>
