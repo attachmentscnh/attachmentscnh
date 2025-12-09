@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Clone Full Field Structure</title>
+
+<style>
+body { font-family: Arial; margin: 20px; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { border: 1px solid #ccc; padding: 6px; }
+th { background: #f4f4f4; }
+button { padding: 10px 20px; background: #007bff; color: white;
+         border: none; border-radius: 5px; cursor: pointer; }
+#messageBox { margin-top: 15px; font-weight: bold; }
+</style>
+</head>
+
+<body>
+<h1>Clone Complete Field Structure</h1>
+
+<button id="cloneBtn">Clone → Attachments_TLB</button>
+<div id="messageBox"></div>
+
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th></tr>
+</thead>
+<tbody id="fieldsBody"></tbody>
+</table>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+import { 
+    getFirestore, collection, getDocs, doc, setDoc
+} from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+
+// ----------------------------
+// 🔥 INSERT YOUR REAL CONFIG
+// ----------------------------
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "attachments-df167.firebaseapp.com",
+    projectId: "attachments-df167",
+    storageBucket: "attachments-df167.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const SOURCE = "Attachments_WL";
+const TARGET = "Attachments_TLB";
+
+function showMessage(msg, error=false) {
+    const box = document.getElementById("messageBox");
+    box.textContent = msg;
+    box.style.color = error ? "red" : "green";
+}
+
+// Recursively collect ALL possible field names
+function collectFields(obj, prefix = "", fieldSet = new Set()) {
+    Object.entries(obj).forEach(([key, value]) => {
+        const path = prefix ? `${prefix}.${key}` : key;
+        fieldSet.add(path);
+        if (value && typeof value === "object" && !Array.isArray(value)) {
+            collectFields(value, path, fieldSet);
+        }
+    });
+    return fieldSet;
+}
+
+// Build empty template object with nulls for each field
+function buildEmptyDoc(fieldSet) {
+    const template = {};
+    fieldSet.forEach(path => {
+        const keys = path.split(".");
+        let ref = template;
+
+        keys.forEach((k, i) => {
+            if (i === keys.length - 1) {
+                ref[k] = null;
+            } else {
+                ref[k] = ref[k] || {};
+                ref = ref[k];
+            }
+        });
+    });
+    return template;
+}
+
+async function cloneStructure() {
+    const btn = document.getElementById("cloneBtn");
+    btn.disabled = true;
+
+    try {
+        showMessage("Scanning source collection…");
+
+        const snapshot = await getDocs(collection(db, SOURCE));
+        if (snapshot.empty) {
+            showMessage("Source collection contains no documents!", true);
+            btn.disabled = false;
+            return;
+        }
+
+        let fieldSet = new Set();
+
+        snapshot.docs.forEach(doc => {
+            const data = doc.data();
+            fieldSet = collectFields(data, "", fieldSet);
+        });
+
+        const fieldList = Array.from(fieldSet).sort();
+
+        // display fields
+        const tbody = document.getElementById("fieldsBody");
+        tbody.innerHTML = "";
+        fieldList.forEach(f => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${f}</td><td>Unknown</td>`;
+            tbody.appendChild(tr);
+        });
+
+        // Create template doc with ALL fields (null)
+        const emptyDoc = buildEmptyDoc(fieldSet);
+        await setDoc(doc(db, TARGET, "template_doc"), emptyDoc);
+
+        showMessage(`Created "${TARGET}" with ${fieldList.length} fields.`);
+    }
+    catch (err) {
+        console.error(err);
+        showMessage("ERROR: " + err.message, true);
+    }
+    finally {
+        btn.disabled = false;
+    }
+}
+
+document.getElementById("cloneBtn").addEventListener("click", cloneStructure);
+</script>
+</body>
+</html>
+
+

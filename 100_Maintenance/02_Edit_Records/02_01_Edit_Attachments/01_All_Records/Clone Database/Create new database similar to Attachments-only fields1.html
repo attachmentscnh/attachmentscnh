@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Create Full Field Template — Attachments_WL</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  h1 { font-size: 20px; margin-bottom: 6px; }
+  p.lead { margin-top: 0; color: #444; }
+  button { padding: 10px 14px; background:#007bff; color:white; border:none; border-radius:6px; cursor:pointer; }
+  button:disabled { background:#ccc; cursor:not-allowed; }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  th, td { border: 1px solid #ddd; padding: 6px; text-align: left; font-size: 13px; }
+  th { background:#f4f4f4; position: sticky; top:0; }
+  #message { margin-top: 12px; font-weight: bold; }
+  .note { color:#666; font-size:13px; margin-top:6px; }
+</style>
+</head>
+<body>
+  <h1>Create full field template in Firestore</h1>
+  <p class="lead">This will create a document <code>template_doc</code> inside collection <code>Attachments_WL</code> containing every field from your header, set to <code>null</code> (Regions → empty array).</p>
+
+  <div>
+    <button id="createBtn">Create template_doc → Attachments_WL</button>
+    <span id="message"></span>
+  </div>
+
+  <div class="note">Replace firebaseConfig placeholders with your real project values before clicking the button.</div>
+
+  <table>
+    <thead>
+      <tr><th>#</th><th>Field name</th><th>Placeholder type</th></tr>
+    </thead>
+    <tbody id="fieldsBody"></tbody>
+  </table>
+
+<script type="module">
+/* ---------------------------
+   Firebase v10 imports
+   --------------------------- */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+import {
+  getFirestore, doc, setDoc, collection, getDocs
+} from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+
+/* ---------------------------
+   REPLACE THESE with your project values
+   --------------------------- */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "attachments-df167",
+  storageBucket: "attachments-df167.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* ---------------------------
+   Header fields (from your pasted header row)
+   Tab-separated header converted into JS array below
+   --------------------------- */
+const FIELD_LIST = [
+  "id","Regions","Brand","Carrier_Machine","Machine_Model","Level_3","Level_4",
+  "Attachment_Category","Attachment_Family_No","Part_Number_Family","Attachment_Description",
+  "Attachment_Family","Current_Status","Supplier","COO","Mount_Collar","Part_Number","Duty",
+  "Blade/Teeth","Length","Height","Width","Capacity","Weight","Series","Specifications",
+  "Vendor_Name","Technical_Type","Type","Flow_Type","Flow_Range_High","Flow_Range_Low",
+  "Bolt_On_Cutting_Edge","BOCE_Number","Remarks","Amplitude","Auger_Diameter","Availability",
+  "Back_Pressure","Base_Plate","Box_Bracket","BPM","BPM_High","BPM_Low","Brush_Diameter",
+  "Brush_Type","Case_Drain","Chisel_Diameter","Compaction_Energy","Coupler","Cutting_Depth",
+  "Cutting_Diameter","Cutting_Edge","Cutting_Width","Cycles_Per_Min","Diameter","Driveline",
+  "Dynamic_Force","GPM_RPM_PSI_1","GPM_RPM_PSI_2","GPM_RPM_PSI_3","Gross_Weight","Height_Closed",
+  "Height_Open","Hose_Size","Impact_Energy","Impulse_Force","Incoterms","Load_Capacity",
+  "Max_Pressure","Maximum_HorsePower","Mounting_Plate","Net_Weight","No_Brushes","No_Cutting_Tools",
+  "No_Teeth","No_Tines","No_Tines1","Number_Cylinders","Oil_Flow_GPM","Oil_Flow_LPM",
+  "Opearting_Pressure","Opearting_Pressure_MPI","Opearting_Pressure_PSI","Operating_Pressure",
+  "Operating_Pressure_MPI","Operating_Pressure_PSI","Operating_Weight_Lbs","Oscillation",
+  "Output_Shaft","Overall_Width","Packed_Height","Packed_Length","Packed_Width","Packing_Dimensions",
+  "Pinon_QC","Region","Region1","Region2","Region3","Relief_Pressure","Rotary_Diameter",
+  "Rotor_Bearing_Size","Rotor_Speed","Shipping_Dimensions","Shipping_Location","Shipping_Weight",
+  "Side_Shift","Side_Shift_Range","Speed_Range","Suitable_Carrier","Supplier_Part_Number","Tilt",
+  "Tilt_Degrees","Tine_Dimensions","Tine_Rotation","Tine_Thickness","Tool_Diameter","Top_Mount_1Pc",
+  "Top_Mount_2Pc","Torque_PSI_1","Torque_PSI_2","Torque_PSI_3","Torque_Range","Warranty",
+  "Warranty_Gearbox","Warranty_Weldments","Working_Width","575N EP-UTILITY PLUS-SV Series",
+  "575N EP-UTILITY PLUS-N Series","580SV-Center Pivot & Side Shift-SV Series",
+  "580SV-Center Pivot & Side Shift-N Series","695SV-Center Pivot & Side Shift-SV Series",
+  "695SV-Center Pivot & Side Shift-N Series","580N EP","580N","580SN","580SN WT","590 SN",
+  "580EV-Electric","570N EP-Tractor Loader"
+];
+
+/* ---------------------------
+   UI references
+   --------------------------- */
+const fieldsBody = document.getElementById('fieldsBody');
+const createBtn = document.getElementById('createBtn');
+const msg = document.getElementById('message');
+
+/* Render field list for review */
+function renderFieldTable() {
+  fieldsBody.innerHTML = "";
+  FIELD_LIST.forEach((f,i) => {
+    const tr = document.createElement('tr');
+    const idx = document.createElement('td'); idx.textContent = i+1;
+    const name = document.createElement('td'); name.textContent = f;
+    const type = document.createElement('td');
+    // Show Regions as Array by default
+    type.textContent = (f === "Regions") ? "Array" : "null";
+    tr.appendChild(idx); tr.appendChild(name); tr.appendChild(type);
+    fieldsBody.appendChild(tr);
+  });
+}
+renderFieldTable();
+
+/* Utility: show messages */
+function showMessage(text, isError=false) {
+  msg.textContent = text;
+  msg.style.color = isError ? 'red' : 'green';
+}
+
+/* Build a template document object with every field = null (Regions => []) */
+function buildTemplate(fields) {
+  const out = {};
+  fields.forEach(f => {
+    if (f === "Regions") out[f] = [];        // helpful default: empty array
+    else out[f] = null;                      // default placeholder
+  });
+  return out;
+}
+
+/* Safety: check whether target already has a template_doc */
+async function targetHasTemplate(targetCollection) {
+  try {
+    const snap = await getDocs(collection(db, targetCollection));
+    for (const d of snap.docs) {
+      if (d.id === "template_doc") return true;
+    }
+    return false;
+  } catch (err) {
+    console.error("error checking target collection:", err);
+    return false;
+  }
+}
+
+/* Main action */
+createBtn.addEventListener('click', async () => {
+  createBtn.disabled = true;
+  showMessage("Preparing template...");
+
+  try {
+    // optional: check if template_doc already exists (warn)
+    const already = await targetHasTemplate("Attachments_WL");
+    if (already) {
+      if (!confirm('A document named "template_doc" already exists in Attachments_WL. Overwrite it?')) {
+        showMessage("Cancelled by user.");
+        createBtn.disabled = false;
+        return;
+      }
+    }
+
+    const template = buildTemplate(FIELD_LIST);
+
+    // Write to Firestore
+    await setDoc(doc(db, "Attachments_WL", "template_doc"), template);
+
+    showMessage(`Success — created Attachments_WL/template_doc with ${FIELD_LIST.length} fields.`);
+    console.log("Template object written:", template);
+  } catch (err) {
+    console.error("Write failed:", err);
+    showMessage("Error: " + (err.message || err), true);
+  } finally {
+    createBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
+
+
+
