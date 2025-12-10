@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Create Full Field Template — Attachments_WL</title>
+<title>Create Full Field Template — Attachments_MHEX</title>
 <style>
   body { font-family: Arial, sans-serif; margin: 20px; }
   h1 { font-size: 20px; margin-bottom: 6px; }
@@ -19,10 +19,10 @@
 </head>
 <body>
   <h1>Create full field template in Firestore</h1>
-  <p class="lead">This will create a document <code>template_doc</code> inside collection <code>Attachments_WL</code> containing every field from your header, set to <code>null</code> (Regions → empty array).</p>
+  <p class="lead">This will create a document <code>template_doc</code> inside collection <code>Attachments_MHEX</code> containing every field from your header, set to <code>null</code> (Regions → empty array).</p>
 
   <div>
-    <button id="createBtn">Create template_doc → Attachments_WL</button>
+    <button id="createBtn">Create template_doc → Attachments_MHEX</button>
     <span id="message"></span>
   </div>
 
@@ -152,9 +152,9 @@ createBtn.addEventListener('click', async () => {
 
   try {
     // optional: check if template_doc already exists (warn)
-    const already = await targetHasTemplate("Attachments_WL");
+    const already = await targetHasTemplate("Attachments_MHEX");
     if (already) {
-      if (!confirm('A document named "template_doc" already exists in Attachments_WL. Overwrite it?')) {
+      if (!confirm('A document named "template_doc" already exists in Attachments_MHEX. Overwrite it?')) {
         showMessage("Cancelled by user.");
         createBtn.disabled = false;
         return;
@@ -164,9 +164,9 @@ createBtn.addEventListener('click', async () => {
     const template = buildTemplate(FIELD_LIST);
 
     // Write to Firestore
-    await setDoc(doc(db, "Attachments_WL", "template_doc"), template);
+    await setDoc(doc(db, "Attachments_MHEX", "template_doc"), template);
 
-    showMessage(`Success — created Attachments_WL/template_doc with ${FIELD_LIST.length} fields.`);
+    showMessage(`Success — created Attachments_MHEX/template_doc with ${FIELD_LIST.length} fields.`);
     console.log("Template object written:", template);
   } catch (err) {
     console.error("Write failed:", err);

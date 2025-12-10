@@ -18,7 +18,7 @@ button { padding: 10px 20px; background: #007bff; color: white;
 <body>
 <h1>Clone Complete Field Structure</h1>
 
-<button id="cloneBtn">Clone → Attachments_TLB</button>
+<button id="cloneBtn">Clone → Attachments_EX</button>
 <div id="messageBox"></div>
 
 <table>
@@ -50,7 +50,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const SOURCE = "Attachments_WL";
-const TARGET = "Attachments_TLB";
+const TARGET = "Attachments_EX";
 
 function showMessage(msg, error=false) {
     const box = document.getElementById("messageBox");

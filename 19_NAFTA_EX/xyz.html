@@ -1,0 +1,123 @@
+//---------------------------------------------------------------------------------------------------------------
+       else if (famNo === "337") {
+
+          // -----------------------------
+          // Table 1: Specifications
+          // -----------------------------
+          const table1Fields = [
+            "Part_Number",
+            "Duty",
+            "Working_Width",
+            "Width",
+            "Warranty",
+
+            "Type",
+            "Series",
+            "Specifications",
+            "Speed_Range",
+            "Weight",
+            
+            "Mounting_Plate",
+          ];
+
+          const table1Labels = {
+            "Part_Number": "Part #",
+            "Duty": "Description",
+            "Width": "Rotor Width",
+            "Working_Width": "Angled Rotor Width",
+            "Warranty": "Overall Width",
+
+            "Type": "Angling",
+            "Series": "Tire Size",
+            "Specifications": "Tire Material",
+            "Speed_Range": "Number of Teeth",
+            "Weight": "Operating Weight (lbs)",
+
+            "Mounting_Plate": "Mounting Plate",
+          };
+
+          // Optional heading for Table 1
+          const h1 = document.createElement("h3");
+          h1.textContent = "Specifications";
+          container.appendChild(h1);
+
+          // Create Table 1
+          const table1 = document.createElement("table");
+          const thead1 = document.createElement("thead");
+          const trHead1 = document.createElement("tr");
+          table1Fields.forEach(f => {
+            const th = document.createElement("th");
+            th.textContent = table1Labels[f] || f;
+            trHead1.appendChild(th);
+          });
+          thead1.appendChild(trHead1);
+          table1.appendChild(thead1);
+
+          const tbody1 = document.createElement("tbody");
+          famGroup.forEach(row => {
+            const tr = document.createElement("tr");
+            table1Fields.forEach(f => {
+              const td = document.createElement("td");
+              td.textContent = row[f] || "";
+              tr.appendChild(td);
+            });
+            tbody1.appendChild(tr);
+          });
+          table1.appendChild(tbody1);
+          container.appendChild(table1);
+
+          // -----------------------------
+          // Table 2: Compatibility
+          // -----------------------------
+          const table2Fields = [
+            "Part_Number",  "Duty",
+            "SR130", "SR150", "SR175", "SR185",
+            "SR200", "SR220", "SR250", "SR300",
+            "TR270", "TR310", "TR320", "TR340",
+            "TV370", "TV380"
+          ];
+
+          const table2Labels = {
+            "Part_Number": "Part #", "Duty": "Description",
+            "SR130": "SR130", "SR150": "SR150", "SR175": "SR175", "SR185": "SR185",
+            "SR200": "SR200", "SR220": "SR220", "SR250": "SR250", "SR300": "SR300",
+            "TR270": "TR270", "TR310": "TR310", "TR320": "TR320", "TR340": "TR340",
+            "TV370": "TV370", "TV380": "TV380"
+          };
+
+          // Optional heading for Table 2
+          const h2 = document.createElement("h3");
+          h2.textContent = "Compatibility";
+          container.appendChild(h2);
+
+          // Create Table 2
+          const table2 = document.createElement("table");
+          const thead2 = document.createElement("thead");
+          const trHead2 = document.createElement("tr");
+          table2Fields.forEach(f => {
+            const th = document.createElement("th");
+            th.textContent = table2Labels[f] || f;
+            trHead2.appendChild(th);
+          });
+          thead2.appendChild(trHead2);
+          table2.appendChild(thead2);
+
+          const tbody2 = document.createElement("tbody");
+          famGroup.forEach(row => {
+            const tr = document.createElement("tr");
+            table2Fields.forEach(f => {
+              const td = document.createElement("td");
+              td.textContent = row[f] || "";
+              tr.appendChild(td);
+            });
+            tbody2.appendChild(tr);
+          });
+          table2.appendChild(tbody2);
+          container.appendChild(table2);
+
+          // -----------------------------
+          // Stop further table rendering
+          // -----------------------------
+          // This prevents any fallback generic table from printing
+          return;
+        }

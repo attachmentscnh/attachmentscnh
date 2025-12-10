@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Attachments_BHL Table Editor (Firebase)</title>
+<style>
+    body { font-family: Arial; background: #111; color: #ff9900; padding: 20px; }
+    h1 { text-align: center; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #222; border: 2px solid #ff9900; border-radius: 10px; overflow: hidden; }
+    th, td { padding: 10px; border-bottom: 1px solid #444; }
+    th { background: #333; text-align: left; }
+    input, select { width: 95%; padding: 6px; background: #000; border: 1px solid #ff9900; border-radius: 6px; color: #ff9900; }
+    button { background: #ff9900; color: #000; font-weight: bold; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+    button:hover { background: #ffaa22; }
+    .delete-btn { background: #cc0000; color: white; }
+    .delete-btn:hover { background: #ff0000; }
+    .edit-btn { background: #1e90ff; color: #fff; }
+    .edit-btn:hover { background: #3aa0ff; }
+    #messageBox { font-weight: bold; margin-top: 10px; height: 20px; }
+</style>
+</head>
+<body>
+
+<h1>Attachments_BHL Table Editor</h1>
+
+<table id="fieldsTable">
+    <thead>
+        <tr>
+            <th>Field Name</th>
+            <th>Field Type</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="fieldsBody"></tbody>
+</table>
+
+<h3>Add New Field</h3>
+<input type="text" id="newFieldName" placeholder="Field name">
+<select id="newFieldType">
+    <option value="String">String</option>
+    <option value="Numeric">Numeric</option>
+    <option value="Boolean">Boolean</option>
+    <option value="Array">Array</option>
+</select>
+<button id="addFieldBtn">Add Field</button>
+
+<div id="messageBox"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+import { 
+    getFirestore, collection, getDocs, doc, updateDoc, deleteField, setDoc
+} from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+
+// --- Firebase Config ---
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "attachments-df167",
+  storageBucket: "attachments-df167.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const AttachmentsCol = collection(db, "Attachments_BHL");
+
+// =========================================
+//            LOAD TABLE
+// =========================================
+async function loadTable() {
+    try {
+        const snapshot = await getDocs(AttachmentsCol);
+        const tbody = document.getElementById("fieldsBody");
+        tbody.innerHTML = "";
+
+        if (snapshot.empty) {
+            const tr = document.createElement("tr");
+            const td = document.createElement("td");
+            td.colSpan = 3;
+            td.textContent = "No fields found in the collection.";
+            td.style.textAlign = "center";
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            return;
+        }
+
+        // Collect all unique fields across all documents
+        const uniqueFields = new Set();
+        snapshot.docs.forEach(docItem => {
+            Object.keys(docItem.data()).forEach(key => uniqueFields.add(key));
+        });
+
+        const sortedFields = Array.from(uniqueFields).sort();
+
+        sortedFields.forEach(fieldName => {
+            const tr = document.createElement("tr");
+
+            // FIELD NAME
+            const tdName = document.createElement("td");
+            const inputName = document.createElement("input");
+            inputName.type = "text";
+            inputName.value = fieldName;
+            inputName.disabled = true;
+            tdName.appendChild(inputName);
+            tr.appendChild(tdName);
+
+            // FIELD TYPE
+            const tdType = document.createElement("td");
+            const selectType = document.createElement("select");
+            ["String", "Numeric", "Boolean", "Array"].forEach(opt => {
+                const option = document.createElement("option");
+                option.value = opt;
+                option.textContent = opt;
+                selectType.appendChild(option);
+            });
+            selectType.value = detectFieldType(snapshot, fieldName);
+            selectType.disabled = true;
+            tdType.appendChild(selectType);
+            tr.appendChild(tdType);
+
+            // ACTION BUTTONS
+            const tdAction = document.createElement("td");
+
+            // EDIT BUTTON
+            const editBtn = document.createElement("button");
+            editBtn.textContent = "Edit";
+            editBtn.classList.add("edit-btn");
+
+            editBtn.addEventListener("click", async () => {
+                if (editBtn.textContent === "Edit") {
+                    inputName.disabled = false;
+                    selectType.disabled = false;
+                    inputName.focus();
+                    editBtn.textContent = "Save";
+                } else {
+                    const newFieldName = inputName.value.trim();
+                    if (!newFieldName) {
+                        showMessage("Field name cannot be empty.", true);
+                        return;
+                    }
+                    await renameFieldAcrossDocs(fieldName, newFieldName, selectType.value);
+                    editBtn.textContent = "Edit";
+                }
+            });
+
+            // DELETE BUTTON
+            const delBtn = document.createElement("button");
+            delBtn.textContent = "Delete";
+            delBtn.classList.add("delete-btn");
+
+            delBtn.addEventListener("click", async () => {
+                if (!confirm(`Delete field "${fieldName}" from ALL documents?`)) return;
+                try {
+                    delBtn.disabled = true;
+                    for (const d of snapshot.docs) {
+                        const ref = doc(db, "Attachments_BHL", d.id);
+                        await updateDoc(ref, { [fieldName]: deleteField() });
+                    }
+                    showMessage(`Field "${fieldName}" deleted.`, false);
+                    loadTable();
+                } catch (err) {
+                    console.error(err);
+                    showMessage("Failed to delete field.", true);
+                } finally {
+                    delBtn.disabled = false;
+                }
+            });
+
+            tdAction.appendChild(editBtn);
+            tdAction.appendChild(delBtn);
+            tr.appendChild(tdAction);
+
+            tbody.appendChild(tr);
+        });
+
+    } catch (err) {
+        console.error(err);
+        showMessage("Failed to load Attachments_BHL.", true);
+    }
+}
+
+// =========================================
+//       RENAME FIELD ACROSS DOCUMENTS
+// =========================================
+async function renameFieldAcrossDocs(oldName, newName, newType = null) {
+    try {
+        const snapshot = await getDocs(AttachmentsCol);
+        for (const d of snapshot.docs) {
+            const data = d.data();
+            const ref = doc(db, "Attachments_BHL", d.id);
+            if (data.hasOwnProperty(oldName)) {
+                let value = data[oldName];
+                if (newType) value = convertType(value, newType);
+                await setDoc(ref, { [newName]: value }, { merge: true });
+                if (newName !== oldName) await updateDoc(ref, { [oldName]: deleteField() });
+            }
+        }
+        showMessage(`Renamed "${oldName}" → "${newName}"`, false);
+        loadTable();
+    } catch (err) {
+        console.error(err);
+        showMessage("Failed to rename field.", true);
+    }
+}
+
+function convertType(value, newType) {
+    switch (newType) {
+        case "String": return String(value);
+        case "Numeric": return Number(value) || 0;
+        case "Boolean": return Boolean(value);
+        case "Array": return Array.isArray(value) ? value : [value];
+        default: return value;
+    }
+}
+
+function detectFieldType(snapshot, fieldName) {
+    for (const docItem of snapshot.docs) {
+        const val = docItem.data()[fieldName];
+        if (val !== undefined) {
+            if (typeof val === "string") return "String";
+            if (typeof val === "number") return "Numeric";
+            if (typeof val === "boolean") return "Boolean";
+            if (Array.isArray(val)) return "Array";
+        }
+    }
+    return "String";
+}
+
+// =========================================
+//            ADD NEW FIELD
+// =========================================
+async function addField() {
+    const nameInput = document.getElementById("newFieldName");
+    const typeInput = document.getElementById("newFieldType");
+
+    const fieldName = nameInput.value.trim();
+    const fieldType = typeInput.value;
+
+    if (!fieldName) {
+        showMessage("Field name cannot be empty.", true);
+        return;
+    }
+
+    let defaultValue =
+        fieldType === "String" ? "" :
+        fieldType === "Numeric" ? 0 :
+        fieldType === "Boolean" ? false :
+        fieldType === "Array" ? [] : null;
+
+    try {
+        const snapshot = await getDocs(AttachmentsCol);
+        if (snapshot.empty) {
+            showMessage("No documents in collection. Add a document first!", true);
+            return;
+        }
+        for (const d of snapshot.docs) {
+            const ref = doc(db, "Attachments_BHL", d.id);
+            await setDoc(ref, { [fieldName]: defaultValue }, { merge: true });
+        }
+        nameInput.value = "";
+        showMessage(`Field "${fieldName}" added successfully!`, false);
+        loadTable();
+    } catch (err) {
+        console.error(err);
+        showMessage("Failed to add field.", true);
+    }
+}
+
+document.getElementById("addFieldBtn").addEventListener("click", addField);
+
+// =========================================
+//            MESSAGE SYSTEM
+// =========================================
+function showMessage(msg, isError = false) {
+    const box = document.getElementById("messageBox");
+    box.textContent = msg;
+    box.style.color = isError ? "red" : "lightgreen";
+}
+loadTable();
+</script>
+
+<footer style="margin-top:20px;">
+  <button onclick="window.location.href='../../../02_Maintenance.html'"
+    style="background: #e58e1a; color: #000; padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+    ⬅ Back to Home
+  </button>
+</footer>
+
+</body>
+</html>

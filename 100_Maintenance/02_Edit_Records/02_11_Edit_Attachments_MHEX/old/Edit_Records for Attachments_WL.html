@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Attachments_WL Records Editor (Firebase)</title>
+<style>
+    body { font-family: Arial; background: #111; color: #ff9900; padding: 20px; }
+    h1 { text-align: center; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #222; border: 2px solid #ff9900; border-radius: 10px; overflow: hidden; }
+    th, td { padding: 10px; border-bottom: 1px solid #444; }
+    th { background: #333; color: #fff; }
+    input, select { width: 95%; padding: 6px; background: #000; color: #ff9900; border: 1px solid #ff9900; border-radius: 5px; }
+    button { background: #ff9900; color: #000; font-weight: bold; padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; margin: 2px; }
+    button:hover { background: #ffaa22; }
+    .delete-row { background: #cc0000; }
+    .delete-row:hover { background: #ff0000; }
+    #deleteSelectedBtn { margin-bottom: 10px; background: #ff4444; }
+    #deleteSelectedBtn:hover { background: #ff0000; }
+</style>
+</head>
+<body>
+
+<h1>Attachments_WL Records Editor</h1>
+
+<button id="deleteSelectedBtn">Delete Selected Records</button>
+
+<table id="recordsTable">
+    <thead id="tableHead"></thead>
+    <tbody id="tableBody"></tbody>
+</table>
+
+<h3>Add New Record</h3>
+<div id="newRecordArea"></div>
+<button id="addRecordBtn">Add Record</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+
+// ------------------ FIREBASE CONFIG ------------------
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "attachments-df167",
+  storageBucket: "attachments-df167.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const colRef = collection(db, "Attachments_WL");
+
+// ---------------- LOAD RECORDS ----------------
+async function loadRecords() {
+    const snapshot = await getDocs(colRef);
+    const allDocs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    const tbody = document.getElementById("tableBody");
+    const thead = document.getElementById("tableHead");
+
+    if (!allDocs.length) {
+        thead.innerHTML = "";
+        tbody.innerHTML = "<tr><td colspan='100%'>No records found.</td></tr>";
+        return;
+    }
+
+    const fields = new Set();
+    allDocs.forEach(d => Object.keys(d).forEach(f => { if(f !== 'id') fields.add(f); }));
+    const fieldList = Array.from(fields);
+
+    // Render header
+    thead.innerHTML = "";
+    const headerRow = document.createElement("tr");
+    headerRow.innerHTML = `<th><input type="checkbox" id="selectAll"></th><th>ID</th>` +
+                          fieldList.map(f => `<th>${f}</th>`).join('') +
+                          `<th>Action</th>`;
+    thead.appendChild(headerRow);
+
+    document.getElementById("selectAll").onclick = function() {
+        document.querySelectorAll(".rowCheckbox").forEach(cb => cb.checked = this.checked);
+    }
+
+    // Render body
+    tbody.innerHTML = "";
+    allDocs.forEach(d => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td><input type="checkbox" class="rowCheckbox" data-id="${d.id}"></td>`;
+        tr.innerHTML += `<td>${d.id}</td>`;
+        fieldList.forEach(f => {
+            tr.innerHTML += `<td><input data-doc="${d.id}" data-field="${f}" value="${d[f] ?? ''}"></td>`;
+        });
+        const tdAction = document.createElement("td");
+        const saveBtn = document.createElement("button");
+        saveBtn.textContent = "Save";
+        saveBtn.onclick = () => saveRecord(d.id);
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.classList.add("delete-row");
+        delBtn.onclick = () => deleteRecord(d.id);
+        tdAction.appendChild(saveBtn);
+        tdAction.appendChild(delBtn);
+        tr.appendChild(tdAction);
+        tbody.appendChild(tr);
+    });
+
+    renderNewRecordInputs(fieldList);
+}
+
+// ---------------- SAVE RECORD ----------------
+async function saveRecord(id) {
+    const inputs = document.querySelectorAll(`input[data-doc="${id}"]`);
+    const updated = {};
+    inputs.forEach(i => updated[i.dataset.field] = parseValue(i.value));
+    await updateDoc(doc(db, "Attachments_WL", id), updated);
+    alert("Record updated");
+}
+
+// ---------------- DELETE SINGLE RECORD ----------------
+async function deleteRecord(id) {
+    if (!confirm("Delete this record?")) return;
+    await deleteDoc(doc(db, "Attachments_WL", id));
+    loadRecords();
+}
+
+// ---------------- DELETE SELECTED ----------------
+document.getElementById("deleteSelectedBtn").onclick = async () => {
+    const selected = Array.from(document.querySelectorAll(".rowCheckbox:checked"))
+                          .map(cb => cb.dataset.id);
+    if (!selected.length) { alert("No records selected."); return; }
+    if (!confirm(`Delete ${selected.length} records?`)) return;
+    for (const id of selected) await deleteDoc(doc(db, "Attachments_WL", id));
+    loadRecords();
+}
+
+// ---------------- PARSE VALUE ----------------
+function parseValue(val) {
+    if (val.trim() === "") return "";
+    if (!isNaN(val)) return Number(val);
+    if (val === "true") return true;
+    if (val === "false") return false;
+    try {
+        const arr = JSON.parse(val);
+        if (Array.isArray(arr)) return arr;
+    } catch {}
+    return val;
+}
+
+// ---------------- ADD RECORD ----------------
+function renderNewRecordInputs(fieldList) {
+    const div = document.getElementById("newRecordArea");
+    div.innerHTML = "";
+    fieldList.forEach(f => {
+        div.innerHTML += `<div><label>${f}:</label><input id="new_${f}"></div><br>`;
+    });
+}
+
+document.getElementById("addRecordBtn").onclick = async () => {
+    const inputs = document.querySelectorAll("#newRecordArea input");
+    const newRecord = {};
+    inputs.forEach(i => {
+        const field = i.id.replace("new_", "");
+        newRecord[field] = parseValue(i.value);
+    });
+    await addDoc(colRef, newRecord);
+    loadRecords();
+};
+
+// ---------------- INITIAL LOAD ----------------
+loadRecords();
+</script>
+</body>
+</html>
+
+
