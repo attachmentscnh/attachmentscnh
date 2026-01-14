@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Attachments_BHL Record Editor (Firebase)</title>
+<title>Attachments_TLB Record Editor (Firebase)</title>
 <style>
     body { font-family: Arial; background: #111; color: #ff9900; padding: 20px; }
     h1 { text-align: center; margin-bottom: 20px; }
@@ -20,7 +20,7 @@
 </head>
 <body>
 
-<h1>Attachments_BHL Record Editor</h1>
+<h1>Attachments_TLB Record Editor</h1>
 
 <button id="deleteSelectedBtn">Delete Selected Records</button>
 
@@ -49,7 +49,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const colRef = collection(db, "Attachments_BHL");
+const colRef = collection(db, "Attachments_TLB");
 
 // ---------------- LOAD RECORDS ----------------
 async function loadRecords() {
@@ -111,14 +111,14 @@ async function saveRecord(id) {
     const inputs = document.querySelectorAll(`input[data-doc="${id}"]`);
     const updated = {};
     inputs.forEach(i => updated[i.dataset.field] = parseValue(i.value));
-    await updateDoc(doc(db, "Attachments_BHL", id), updated);
+    await updateDoc(doc(db, "Attachments_TLB", id), updated);
     alert("Record updated");
 }
 
 // ---------------- DELETE SINGLE RECORD ----------------
 async function deleteRecord(id) {
     if (!confirm("Delete this record?")) return;
-    await deleteDoc(doc(db, "Attachments_BHL", id));
+    await deleteDoc(doc(db, "Attachments_TLB", id));
     loadRecords();
 }
 
@@ -128,7 +128,7 @@ document.getElementById("deleteSelectedBtn").onclick = async () => {
                           .map(cb => cb.dataset.id);
     if (!selected.length) { alert("No records selected."); return; }
     if (!confirm(`Delete ${selected.length} records?`)) return;
-    for (const id of selected) await deleteDoc(doc(db, "Attachments_BHL", id));
+    for (const id of selected) await deleteDoc(doc(db, "Attachments_TLB", id));
     loadRecords();
 }
 
@@ -169,7 +169,7 @@ document.getElementById("addRecordBtn").onclick = async () => {
 loadRecords();
 </script>
 <footer>
-  <button onclick="window.location.href='02_02_Maintenance_Attachments_BHL.html'"
+  <button onclick="window.location.href='02_02_Maintenance_Attachments_TLB.html'"
     style="
       background: #e58e1a;
       color: #000000;
@@ -183,5 +183,3 @@ loadRecords();
 </footer>
 </body>
 </html>
-
-

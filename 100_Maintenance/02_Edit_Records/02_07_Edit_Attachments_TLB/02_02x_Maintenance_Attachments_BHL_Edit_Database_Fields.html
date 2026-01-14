@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Attachments_BHL Table Editor</title>
+<title>Attachments_TLB Table Editor</title>
 <style>
 body { font-family: Arial; background: #111; color: #ff9900; padding: 20px; }
 h1 { text-align: center; margin-bottom: 20px; }
@@ -21,7 +21,7 @@ button:hover { background: #ffaa22; }
 </head>
 <body>
 
-<h1>Attachments_BHL Table Editor</h1>
+<h1>Attachments_TLB Table Editor</h1>
 
 <table id="fieldsTable">
 <thead>
@@ -64,7 +64,7 @@ appId: "YOUR_APP_ID"
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const AttachmentsCol = collection(db, "Attachments_BHL");
+const AttachmentsCol = collection(db, "Attachments_TLB");
 
 // =========================================
 //      SANITIZE FIELD NAMES
@@ -157,7 +157,7 @@ async function loadTable() {
 
     } catch(err){
         console.error(err);
-        showMessage("Failed to load Attachments_BHL.", true);
+        showMessage("Failed to load Attachments_TLB.", true);
     }
 }
 
@@ -175,7 +175,7 @@ async function sanitizeAndDelete(fieldName){
         if(snapshot.empty){ showMessage("No documents to delete from.", true); return;}
         for(const d of snapshot.docs){
             const data = d.data();
-            const ref = doc(db,"Attachments_BHL",d.id);
+            const ref = doc(db,"Attachments_TLB",d.id);
 
             // Rename if necessary
             if(data.hasOwnProperty(fieldName) && fieldName!==sanitized){
@@ -204,7 +204,7 @@ async function renameFieldAcrossDocs(oldName,newName,newType=null){
         const snapshot = await getDocs(AttachmentsCol);
         for(const d of snapshot.docs){
             const data = d.data();
-            const ref = doc(db,"Attachments_BHL",d.id);
+            const ref = doc(db,"Attachments_TLB",d.id);
             if(data.hasOwnProperty(oldName)){
                 let value = data[oldName];
                 if(newType) value = convertType(value,newType);
@@ -235,7 +235,7 @@ async function addField(){
         const snapshot = await getDocs(AttachmentsCol);
         if(snapshot.empty){ showMessage("No documents in collection. Add a document first!", true); return;}
         for(const d of snapshot.docs){
-            const ref = doc(db,"Attachments_BHL",d.id);
+            const ref = doc(db,"Attachments_TLB",d.id);
             await setDoc(ref,{ [fieldName]: defaultValue },{ merge:true });
         }
         nameInput.value="";
@@ -290,7 +290,7 @@ loadTable();
 </script>
 
 <footer>
-  <button onclick="window.location.href='02_02_Maintenance_Attachments_BHL.html'"
+  <button onclick="window.location.href='02_02_Maintenance_Attachments_TLB.html'"
     style="
       background: #e58e1a;
       color: #000000;
