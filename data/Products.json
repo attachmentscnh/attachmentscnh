@@ -1,0 +1,22 @@
+[
+  {
+    "id": "HDG-20",
+    "name": "Heavy Duty Grapple",
+    "category": "Grapple",
+    "machine_range_ton": "15-25",
+    "operating_weight_kg": 850,
+    "max_opening_mm": 1520,
+    "recommended_use": "Demolition and scrap handling",
+    "compatible_models": ["CX160", "CX210", "CX220"]
+  },
+  {
+    "id": "TB-12",
+    "name": "Trenching Bucket 1200mm",
+    "category": "Bucket",
+    "machine_range_ton": "18-25",
+    "operating_weight_kg": 620,
+    "width_mm": 1200,
+    "recommended_use": "Trenching and utility work",
+    "compatible_models": ["CX210", "CX220"]
+  }
+]

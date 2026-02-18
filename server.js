@@ -2,26 +2,48 @@
 import express from "express";
 import cors from "cors";
 import admin from "firebase-admin";
+import dotenv from "dotenv";
+
+
+
+
+dotenv.config();
 
 const app = express();
-app.use(cors());
 app.use(express.json());
 
+// ========================
+// CORS - Allow any Live Server origin (dev only)
+// ========================
+app.use(cors()); // DEV: allows http://127.0.0.1:5500, http://localhost:5500, etc.
+
+// ========================
+// Firebase Setup
+// ========================
 admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
+  credential: admin.credential.applicationDefault()
 });
+
 const db = admin.firestore();
 
+// ========================
+// Firestore Helper Function
+// ========================
 async function updateAllDocs(callback) {
   const snapshot = await db.collection("Attachments").get();
   let count = 0;
+
   for (const doc of snapshot.docs) {
     await callback(doc);
     count++;
   }
+
   return count;
 }
 
+// ========================
+// Firestore Maintenance APIs
+// ========================
 app.post("/add", async (req, res) => {
   try {
     const { fieldName, defaultValue } = req.body;
@@ -75,4 +97,44 @@ app.post("/delete", async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log("Server running on http://localhost:3000"));
+// ========================
+// OpenAI Proxy Endpoint
+// ========================
+app.post("/api/proxy", async (req, res) => {
+  const { message } = req.body;
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: message }]
+      })
+    });
+
+    const data = await response.json();
+
+    console.log("FULL OPENAI RESPONSE:");
+    console.log(JSON.stringify(data, null, 2));
+
+    res.json({
+      reply: data?.choices?.[0]?.message?.content ?? "No response."
+    });
+
+  } catch (err) {
+    console.error("SERVER ERROR:", err);
+    res.status(500).json({ reply: "Server error" });
+  }
+});
+
+
+// ========================
+// Start Server
+// ========================
+app.listen(3000, () => {
+  console.log("Server running on http://localhost:3000");
+});

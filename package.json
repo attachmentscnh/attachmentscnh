@@ -1,28 +1,16 @@
-$ npm install --save @emailjs/browser
 {
   "name": "attachmentscnh",
   "version": "1.0.0",
-
-  "description": "��#\u0000 \u0000a\u0000t\u0000t\u0000a\u0000c\u0000h\u0000m\u0000e\u0000n\u0000t\u0000s\u0000c\u0000n\u0000h\u0000\r\u0000 \u0000",
+  "type": "module",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/attachmentscnh/attachmentscnh.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/attachmentscnh/attachmentscnh/issues"
-  },
-  "homepage": "https://github.com/attachmentscnh/attachmentscnh#readme",
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "firebase-admin": "^13.5.0"
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "firebase-admin": "^13.6.1",
+    "node-fetch": "^3.3.2"
   }
 }
