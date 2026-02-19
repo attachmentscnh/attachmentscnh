@@ -12,5 +12,17 @@
     "express": "^5.2.1",
     "firebase-admin": "^13.6.1",
     "node-fetch": "^3.3.2"
-  }
+  },
+  "description": "��#\u0000 \u0000a\u0000t\u0000t\u0000a\u0000c\u0000h\u0000m\u0000e\u0000n\u0000t\u0000s\u0000c\u0000n\u0000h\u0000\r\u0000 \u0000",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/attachmentscnh/attachmentscnh.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/attachmentscnh/attachmentscnh/issues"
+  },
+  "homepage": "https://github.com/attachmentscnh/attachmentscnh#readme"
 }
