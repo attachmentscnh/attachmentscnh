@@ -1,0 +1,60 @@
+---
+---
+<header class="fixed top-0 left-0 right-0 z-50">
+  <div class="mx-auto max-w-6xl px-4 pt-4">
+    <nav class="flex items-center justify-between rounded-2xl border border-border bg-bg/80 px-5 py-2.5 backdrop-blur-xl">
+      <a href="/" class="flex items-center gap-2.5 text-text transition-opacity hover:opacity-80">
+        <svg viewBox="0 0 32 32" fill="none" class="h-7 w-7">
+          <defs>
+            <linearGradient id="logo-grad" x1="4" y1="4" x2="28" y2="28">
+              <stop offset="0%" stop-color="#818cf8"/>
+              <stop offset="100%" stop-color="#06b6d4"/>
+            </linearGradient>
+          </defs>
+          <path d="M4 11a7 7 0 017-7h10a7 7 0 017 7v4a7 7 0 01-7 7h-3l-5 6v-6h-2a7 7 0 01-7-7v-4z" fill="url(#logo-grad)"/>
+          <path d="M16 9l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z" fill="white" opacity="0.9"/>
+        </svg>
+        <span class="text-[15px] font-semibold tracking-tight">ChatCops</span>
+      </a>
+
+      <div class="hidden items-center gap-1 sm:flex">
+        <a href="/getting-started/quick-start" class="rounded-lg px-3 py-1.5 text-sm text-text-secondary transition-colors hover:text-text">
+          Docs
+        </a>
+        <a href="https://github.com/codercops/chatcops" class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-text-secondary transition-colors hover:text-text" target="_blank" rel="noopener">
+          <svg viewBox="0 0 16 16" fill="currentColor" class="h-4 w-4">
+            <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+          <span id="gh-stars-header" class="inline-flex items-center gap-1 text-xs font-semibold tabular-nums" style="display:none;">
+            <svg viewBox="0 0 16 16" fill="currentColor" class="h-3 w-3 text-amber-400"><path d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"/></svg>
+          </span>
+        </a>
+        <div class="ml-2 h-4 w-px bg-border"></div>
+        <a href="/getting-started/quick-start" class="ml-2 rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark">
+          Get Started
+        </a>
+      </div>
+
+      <button class="rounded-lg p-2 text-text-secondary hover:text-text sm:hidden" aria-label="Menu" id="mobile-toggle">
+        <svg viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5">
+          <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+        </svg>
+      </button>
+    </nav>
+
+    <div id="mobile-menu" class="mt-2 hidden rounded-2xl border border-border bg-bg-surface/95 p-4 backdrop-blur-xl sm:hidden">
+      <div class="flex flex-col gap-1">
+        <a href="/getting-started/quick-start" class="rounded-lg px-3 py-2.5 text-sm text-text-secondary hover:text-text">Documentation</a>
+        <a href="https://github.com/codercops/chatcops" class="rounded-lg px-3 py-2.5 text-sm text-text-secondary hover:text-text" target="_blank" rel="noopener">GitHub</a>
+        <a href="/getting-started/quick-start" class="mt-2 rounded-lg bg-primary px-3 py-2.5 text-center text-sm font-medium text-white">Get Started</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById('mobile-toggle');
+  const menu = document.getElementById('mobile-menu');
+  toggle?.addEventListener('click', () => menu?.classList.toggle('hidden'));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') menu?.classList.add('hidden'); });
+</script>

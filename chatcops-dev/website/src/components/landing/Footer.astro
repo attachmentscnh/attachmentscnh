@@ -1,0 +1,110 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-border py-16">
+  <div class="mx-auto max-w-5xl px-6">
+    <div class="grid grid-cols-2 gap-10 sm:grid-cols-4">
+      <!-- Brand -->
+      <div class="col-span-2 sm:col-span-1">
+        <a href="/" class="inline-flex items-center gap-2 text-text">
+          <svg viewBox="0 0 32 32" fill="none" class="h-6 w-6">
+            <defs>
+              <linearGradient id="flogo" x1="4" y1="4" x2="28" y2="28">
+                <stop offset="0%" stop-color="#818cf8"/>
+                <stop offset="100%" stop-color="#06b6d4"/>
+              </linearGradient>
+            </defs>
+            <path d="M4 11a7 7 0 017-7h10a7 7 0 017 7v4a7 7 0 01-7 7h-3l-5 6v-6h-2a7 7 0 01-7-7v-4z" fill="url(#flogo)"/>
+            <path d="M16 9l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z" fill="white" opacity="0.9"/>
+          </svg>
+          <span class="text-sm font-semibold">ChatCops</span>
+        </a>
+        <p class="mt-3 text-sm leading-relaxed text-text-muted max-w-[200px]">
+          Universal embeddable AI chatbot widget.
+        </p>
+      </div>
+
+      <div>
+        <h4 class="mb-3 text-[11px] font-semibold uppercase tracking-widest text-text-muted">Product</h4>
+        <div class="flex flex-col gap-2.5">
+          <a href="/getting-started/quick-start" class="text-sm text-text-secondary transition-colors hover:text-text">Quick Start</a>
+          <a href="/getting-started/installation" class="text-sm text-text-secondary transition-colors hover:text-text">Installation</a>
+          <a href="/widget/configuration" class="text-sm text-text-secondary transition-colors hover:text-text">Configuration</a>
+          <a href="/server/setup" class="text-sm text-text-secondary transition-colors hover:text-text">Server Setup</a>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="mb-3 text-[11px] font-semibold uppercase tracking-widest text-text-muted">Docs</h4>
+        <div class="flex flex-col gap-2.5">
+          <a href="/core/providers" class="text-sm text-text-secondary transition-colors hover:text-text">Providers</a>
+          <a href="/examples/express-full" class="text-sm text-text-secondary transition-colors hover:text-text">Examples</a>
+          <a href="/widget/api" class="text-sm text-text-secondary transition-colors hover:text-text">API Reference</a>
+          <a href="/widget/theming" class="text-sm text-text-secondary transition-colors hover:text-text">Theming</a>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="mb-3 text-[11px] font-semibold uppercase tracking-widest text-text-muted">Community</h4>
+        <div class="flex flex-col gap-2.5">
+          <a href="https://github.com/codercops/chatcops" target="_blank" rel="noopener" class="text-sm text-text-secondary transition-colors hover:text-text">GitHub</a>
+          <a href="https://github.com/codercops/chatcops/issues" target="_blank" rel="noopener" class="text-sm text-text-secondary transition-colors hover:text-text">Issues</a>
+          <a href="https://github.com/codercops/chatcops/discussions" target="_blank" rel="noopener" class="text-sm text-text-secondary transition-colors hover:text-text">Discussions</a>
+          <a href="https://codercops.com" target="_blank" rel="noopener" class="text-sm text-text-secondary transition-colors hover:text-text">CODERCOPS</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
+      <span class="text-xs text-text-muted">
+        Built by <a href="https://codercops.com" target="_blank" rel="noopener" class="text-text-secondary hover:text-text transition-colors">CODERCOPS</a>
+      </span>
+      <div class="flex items-center gap-4 text-xs text-text-muted">
+        <span class="inline-flex items-center gap-1.5">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Today: <span id="visitors-today" class="font-mono font-semibold text-text-secondary">-</span>
+        </span>
+        <span class="inline-flex items-center gap-1.5">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Total: <span id="visitors-total" class="font-mono font-semibold text-text-secondary">-</span>
+        </span>
+      </div>
+      <span class="text-xs text-text-muted">MIT License &middot; {year}</span>
+    </div>
+  </div>
+</footer>
+
+<script is:inline>
+(function() {
+  function updateDOM(data) {
+    var today = document.getElementById('visitors-today');
+    var total = document.getElementById('visitors-total');
+    if (today) today.textContent = (data.today || 0).toLocaleString();
+    if (total) total.textContent = (data.total || 0).toLocaleString();
+  }
+
+  function loadVisitors() {
+    if (!sessionStorage.getItem('chatcops-counted')) {
+      fetch('/api/visitors', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          sessionStorage.setItem('chatcops-counted', '1');
+          updateDOM(data);
+        })
+        .catch(function(e) { console.warn('Visitor counter error:', e); });
+    } else {
+      fetch('/api/visitors')
+        .then(function(r) { return r.json(); })
+        .then(updateDOM)
+        .catch(function(e) { console.warn('Visitor counter error:', e); });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadVisitors);
+  } else {
+    loadVisitors();
+  }
+})();
+</script>
