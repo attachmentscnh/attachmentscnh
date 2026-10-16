@@ -727,16 +727,13 @@
 </div>
 
 <div class="form-row highlight-box">
-  <label>Arm Type</label>
-  <select id="ArmSelect"></select>
+  <label>Quick Coupler / Direct-Fit</label>
+  <select id="QuickCouplerSelect"></select>
 </div>
 
 <div class="form-row highlight-box">
-  <label>Quick Coupler (Y/N)</label>
-  <select id="QuickCouplerSelect">
-        <option value="0" selected>No</option>
-        <option value="1">Yes</option>
-    </select>
+  <label>Arm Type</label>
+  <select id="ArmSelect"></select>
 </div>
 
 <div class="form-row highlight-box">
@@ -744,21 +741,15 @@
   <select id="JobApplicationSelect" style="font-size: 10px;">
     <option value="application1">Landscaping & Utility – (Light) [GP Buckets Only]</option>
     <option value="application2">Construction & Earthmoving – (Med) [HD Buckets Only]</option>
-    <option value="application3">Quarrying & HD Excavation – (Heavy) [HD and Rock Buckets Only]</option>
+    <option value="application3">Quarrying & HD Excavation – (Heavy) [HD, & Extreme-Rock Buckets Only]</option>
   </select>
 </div>
-
-
 
 <div class="form-row highlight-box">
   <label>Bucket Type</label>
   <select id="bucketTypeSelect"></select>
 </div>
 
-<div class="form-row highlight-box" id="linkageRow" style="display:none;">
-  <label>Linkage</label>
-  <select id="linkageSelect"></select>
-</div>
 <div class="form-row highlight-box">
   <label>Bucket Capacity</label>
   <select id="bucketSelect"></select>
@@ -783,11 +774,7 @@
   </label>
   <div style="flex:1; display:flex; align-items:center; gap:8px; min-width:210px; width:100%; transform: translateX(-4mm);">
 
-    <select id="rollresis" style="flex:1;">
-      <option value="100%" selected>Optimal-100%</option>
-      <option value="90%" >Average-90%</option>
-      <option value="70%">Poor-70% </option>
-    </select>
+    <div id="rollresis" class="value-box" style="flex:1;" title="From table MD (Filling_Rate)">Select Material</div>
   </div>
 </div>
 
@@ -813,11 +800,11 @@
   </label>
   <div style="flex:1; display:flex; align-items:center; gap:8px; min-width:210px; width:100%; transform: translateX(-4mm);">
     <select id="material_type" style="flex:1; font-size:80%;">
-      <option value="-1">Stockpiled or sand, free flowing</option>
+      <option value="-1">Stockpiled or sand, free flowing (-1)</option>
       <option value="0" selected>Earth and loam, clay/sand mixture</option>
-      <option value="3">Stiff clay</option>
-      <option value="5">Bank gravel</option>
-      <option value="8">Rocks and boulders</option>
+      <option value="3">Stiff clay (+3)</option>
+      <option value="5">Bank gravel (+5)</option>
+      <option value="8">Rocks and boulders (+8)</option>
     </select>
   </div>
 </div>
@@ -831,10 +818,10 @@
   </label>
   <div style="flex:1; display:flex; align-items:center; gap:8px; min-width:210px; width:100%; transform: translateX(-4mm);">
     <select id="work_condition" style="flex:1; font-size:80%;">
-      <option value="-1">No obstruction, open excavation</option>
-      <option value="0" selected>Narrow trench, few obstruction</option>
-      <option value="2">Some obstructions (trench box)</option>
-      <option value="5">Many obstructions (complex shoring)</option>
+      <option value="-1">No obstruction, open excavation (-1)</option>
+      <option value="0" selected>Narrow trench, few obstruction (0)</option>
+      <option value="2">Some obstructions (trench box) (+2)</option>
+      <option value="5">Many obstructions (complex shoring) (+5)</option>
     </select>
   </div>
 </div>
@@ -847,11 +834,11 @@
   <div style="flex:1; display:flex; align-items:center; gap:8px; min-width:210px; width:100%; transform: translateX(-4mm);">
     <select id="swing_angle" style="flex:1; font-size:80%;">
       <option value="0" selected>&lt;45°</option>
-      <option value="1">&gt;45°</option>
-      <option value="2">&gt;90°</option>
-      <option value="3">&gt;135°</option>
-      <option value="4">&gt;180°</option>
-      <option value="5">&gt;225°</option>
+      <option value="1">&gt;45° (+1)</option>
+      <option value="2">&gt;90° (+2)</option>
+      <option value="3">&gt;135° (+3)</option>
+      <option value="4">&gt;180° (+4)</option>
+      <option value="5">&gt;225° (+5)</option>
     </select>
   </div>
 </div>
@@ -862,10 +849,10 @@
   </label>
   <div style="flex:1; display:flex; align-items:center; gap:8px; min-width:210px; width:100%; transform: translateX(-4mm);">
     <select id="digging_depth" style="flex:1; font-size:80%;">
-      <option value="2">MAX=100% of the maximum digging depth</option>
-      <option value="1">HIGH=75% of the maximum digging depth</option>
-      <option value="0" selected>MED=50% of the maximum digging depth</option>
-      <option value="-1">LOW=25% of the maximum digging depth</option>
+      <option value="2">MAX=100% of the maximum digging depth (+2)</option>
+      <option value="1">HIGH=75% of the maximum digging depth (+1)</option>
+      <option value="0" selected>MED=50% of the maximum digging depth (0)</option>
+      <option value="-1">LOW=25% of the maximum digging depth (-1)</option>
     </select>
   </div>
 </div>
@@ -876,11 +863,11 @@
   </label>
   <div style="flex:1; display:flex; align-items:center; gap:8px; min-width:210px; width:100%; transform: translateX(-4mm);">
     <select id="dump_condition" style="flex:1; font-size:80%;">
-      <option value="-1">On ground beside trench</option>
-      <option value="-2">Truck loading - below excavator</option>
-      <option value="0" selected>Truck loading - next to excavator</option>
-      <option value="1">Small target</option>
-      <option value="2">Extreme reach</option>
+      <option value="-1">On ground beside trench (-1)</option>
+      <option value="-2">Truck loading - below excavator (-2)</option>
+      <option value="0" selected>Truck loading - next to excavator (0)</option>
+      <option value="1">Small target (1)</option>
+      <option value="2">Extreme reach (2)</option>
     </select>
   </div>
 </div>
@@ -969,8 +956,6 @@
         const QuickCouplerSelect = document.getElementById("QuickCouplerSelect");
         const JobApplicationSelect = document.getElementById("JobApplicationSelect");
         const bucketSelect = document.getElementById("bucketSelect");
-        const linkageSelect = document.getElementById("linkageSelect");
-        const linkageRow = document.getElementById("linkageRow");
         const materialSelect = document.getElementById("materialSelect");
         const bucketImage = document.getElementById("bucketImage");
         let finalData = {
@@ -981,7 +966,7 @@
 
 
         /* ================= CORRECTED CYCLE TIME ================= */
-        const CORRECTION_IDS = ["rollresis", "material_type", "work_condition",
+        const CORRECTION_IDS = ["material_type", "work_condition",
           "swing_angle", "digging_depth", "dump_condition"];
 
         // "90%" -> 0.9  (Number("90%") is NaN, so parseFloat is required)
@@ -1014,10 +999,23 @@
           return Number.isFinite(n) ? n : NaN;
         }
 
-        // Filling Factor (%) dropdown: "100%" -> 100, "90%" -> 90, "70%" -> 70
+        // Filling Factor (%) comes from table MD, field Filling_Rate (display only).
+        // Accepts 90 / "90%" / 0.9 -> 90
+        function normFillPct(v) {
+          const n = toNum(v);
+          if (!Number.isFinite(n) || n <= 0) return 0;
+          return n <= 1.5 ? n * 100 : n;
+        }
         function getFillPct() {
-          const n = toNum(document.getElementById("rollresis")?.value);
-          return Number.isFinite(n) && n > 0 ? n : 100;
+          return normFillPct(fill_factor);
+        }
+        function updateFillDisplay() {
+          const el = document.getElementById("rollresis");
+          if (!el) return;
+          const f = getFillPct();
+          if (!materialSelected) { el.textContent = "Select Material"; el.style.color = "#b00000"; }
+          else if (!f) { el.textContent = "Filling_Rate missing in MD"; el.style.color = "#b00000"; }
+          else { el.textContent = `${fmtSecs(f)}%`; el.style.color = "black"; }
         }
 
         // Selected Bucket Capacity in m³ (0 if nothing selected)
@@ -1127,8 +1125,8 @@
 
 
         bucketTypeSelect.disabled = true;
+        QuickCouplerSelect.disabled = true;
         ArmSelect.disabled = true;
-        linkageSelect.disabled = true;
         bucketSelect.disabled = true;
 
         // const box = document.getElementById("effValBox");
@@ -1323,7 +1321,8 @@
           Model: ["Model", "model", "MODEL"],
           Arm: ["Arm", "arm", "Arm_Type", "Arm Type", "ArmType"],
           Bucket_Type: ["Bucket_Type", "Bucket Type", "BucketType", "bucket_type", "Bucket_type"],
-          Linkage: ["Linkage", "linkage", "LINKAGE"],
+          // Quick Coupler / Direct-Fit column of table CHEX
+          Coupler: ["Link", "link", "LINK"],
           Bucket_Capacity: ["Bucket_Capacity", "Bucket Capacity", "BucketCapacity", "Capacity"]
         };
 
@@ -1386,82 +1385,140 @@
           `<option value="">${placeholder}</option>` +
           arr.map(v => `<option value="${v}">${v}${suffix}</option>`).join("");
 
+        // Order of the cascade: Model -> Coupler -> Arm -> Bucket Type -> Capacity
         function resetBelow(level) {
-          // level: "arm" | "bucket" | "linkage" -> clear every dropdown after it
-          if (level === "arm") {
+          const order = ["coupler", "arm", "bucket", "capacity"];
+          const from = order.indexOf(level);
+          if (from <= 0) {
+            QuickCouplerSelect.innerHTML = opts("-- Select Coupler --", []);
+            QuickCouplerSelect.disabled = true;
+          }
+          if (from <= 1) {
             ArmSelect.innerHTML = opts("-- Select Arm --", []);
             ArmSelect.disabled = true;
           }
-          if (level === "arm" || level === "bucket") {
+          if (from <= 2) {
             bucketTypeSelect.innerHTML = opts("-- Select Bucket Type --", []);
             bucketTypeSelect.disabled = true;
           }
-          if (level === "arm" || level === "bucket" || level === "linkage") {
-            linkageSelect.innerHTML = "";
-            linkageSelect.disabled = true;
-            linkageRow.style.display = "none";
-          }
           bucketSelect.innerHTML = opts("-- Select Capacity --", []);
           bucketSelect.disabled = true;
-          document.getElementById("output1").style.display = "none";
+          clearBucketSpecs();
         }
 
-        /* 1. MODEL -> fills ARM */
+        // selected spec values belong to ONE CHEX row -> clear when anything upstream changes
+        function clearBucketSpecs() {
+          Max_Mat_Density = 0; Bucket_Width = 0; Bucket_Weight = 0;
+          Max_Dump_Height = 0; Max_Dump_Height_4 = 0; Lifting_Capacity = 0;
+          document.getElementById("output1").style.display = "none";
+          if (densityLocked) clearDensityError();
+          resetProductivityOutputs();
+        }
+
+        // current filters of Section 1 (only non-empty ones are applied)
+        function currentFilters(upTo) {
+          const f = { Model: modelSelect.value };
+          if (upTo === "coupler") return f;
+          f.Coupler = QuickCouplerSelect.value;
+          if (upTo === "arm") return f;
+          f.Arm = ArmSelect.value;
+          if (upTo === "bucket") return f;
+          f.Bucket_Type = bucketTypeSelect.value;
+          return f;
+        }
+
+        // CHEX "Link" codes -> display names
+        const LINK_LABELS = { DF: "Direct-Fit", QC: "Quick Coupler" };
+        const linkLabel = v => {
+          const k = String(v ?? "").trim().toUpperCase();
+          return LINK_LABELS[k] ? `${LINK_LABELS[k]} (${k})` : String(v ?? "");
+        };
+
+        // fill a dropdown; auto-pick when there is only one choice
+        function fillSelect(sel, placeholder, values) {
+          sel.innerHTML = opts(placeholder, values);
+          sel.disabled = values.length === 0;
+          if (values.length === 1) { sel.value = values[0]; sel.onchange(); }
+        }
+
+        /* 1. MODEL -> fills QUICK COUPLER / DIRECT-FIT */
         modelSelect.onchange = async () => {
-          resetBelow("arm");
+          resetBelow("coupler");
           loadStdCycleTime(modelSelect.value);
           if (!modelSelect.value) return;
 
-          const data = await getFilteredData({ Model: modelSelect.value });
-          const arms = uniq(data.map(d => field(d, "Arm")));
+          const data = await getFilteredData(currentFilters("coupler"));
+          const couplers = uniq(data.map(d => field(d, "Coupler")));
 
-          ArmSelect.innerHTML = opts("-- Select Arm --", arms);
-          ArmSelect.disabled = false;
-
-          // only one arm for this model -> pick it automatically
-          if (arms.length === 1) {
-            ArmSelect.value = arms[0];
-            ArmSelect.onchange();
+          if (couplers.length === 0) {
+            // no "Link" value in CHEX for this model -> skip this step
+            QuickCouplerSelect.innerHTML = `<option value="">N/A</option>`;
+            QuickCouplerSelect.disabled = true;
+            loadArms();
+            return;
           }
+          fillSelect(QuickCouplerSelect, "-- Select Coupler --", couplers);
+          // show readable names; the option value stays the raw CHEX "Link" code (DF / QC)
+          [...QuickCouplerSelect.options].forEach(o => { if (o.value) o.textContent = linkLabel(o.value); });
         };
 
-        /* 2. ARM -> fills BUCKET TYPE */
+        /* 2. COUPLER -> fills ARM (only arms available with that coupler) */
+        QuickCouplerSelect.onchange = async () => {
+          resetBelow("arm");
+          if (!QuickCouplerSelect.value) return;
+          loadArms();
+        };
+
+        async function loadArms() {
+          const data = await getFilteredData(currentFilters("arm"));
+          fillSelect(ArmSelect, "-- Select Arm --", uniq(data.map(d => field(d, "Arm"))));
+        }
+
+        /* 3. ARM -> fills BUCKET TYPE (only types available for Model + Coupler + Arm) */
         ArmSelect.onchange = async () => {
           resetBelow("bucket");
+          updateBucketImage();
           if (!ArmSelect.value) return;
 
-          const data = await getFilteredData({
-            Model: modelSelect.value,
-            Arm: ArmSelect.value
-          });
-
-          bucketTypeSelect.innerHTML = opts("-- Select Bucket Type --", uniq(data.map(d => field(d, "Bucket_Type"))));
-          bucketTypeSelect.disabled = false;
+          const data = await getFilteredData(currentFilters("bucket"));
+          const allTypes = uniq(data.map(d => field(d, "Bucket_Type")));
+          const types = allTypes.filter(isBucketAllowed);
+          if (allTypes.length && !types.length) {
+            bucketTypeSelect.innerHTML = `<option value="">No bucket for this Job Application</option>`;
+            bucketTypeSelect.disabled = true;
+            return;
+          }
+          fillSelect(bucketTypeSelect, "-- Select Bucket Type --", types);
         };
 
-        /* 3. BUCKET TYPE -> image + (LINKAGE or CAPACITY) */
+        /* JOB APPLICATION -> which bucket types may be offered */
+        //   Light : GP only
+        //   Med   : HD only
+        //   Heavy : HD + Extreme-Rock (CHEX may write it X-Rock / Extreme Rock / XR)
+        const normType = v => String(v ?? "").toLowerCase().replace(/[^a-z]/g, "");
+        const APP_BUCKETS = {
+          application1: ["gp"],
+          application2: ["hd"],
+          application3: ["hd", "xrock", "extremerock", "xr"]
+        };
+        function isBucketAllowed(type) {
+          const allowed = APP_BUCKETS[JobApplicationSelect.value];
+          return !allowed || allowed.includes(normType(type));
+        }
+
+        // changing the application re-filters the bucket types for the chosen arm
+        JobApplicationSelect.onchange = () => {
+          if (ArmSelect.value) ArmSelect.onchange();
+        };
+
+        /* 4. BUCKET TYPE -> image + filtered CAPACITIES */
         bucketTypeSelect.onchange = async () => {
-          resetBelow("linkage");
+          resetBelow("capacity");
           updateBucketImage();
           if (!bucketTypeSelect.value) return;
 
-          const data = await getFilteredData({
-            Model: modelSelect.value,
-            Arm: ArmSelect.value,
-            Bucket_Type: bucketTypeSelect.value
-          });
-
-          const linkages = uniq(data.map(d => field(d, "Linkage")));
-
-          if (linkages.length === 0) {
-            // CHEX table has no Linkage column -> go straight to capacity
-            fillCapacities(data);
-            return;
-          }
-
-          linkageRow.style.display = "";
-          linkageSelect.innerHTML = opts("-- Select Linkage --", linkages);
-          linkageSelect.disabled = false;
+          const data = await getFilteredData(currentFilters("capacity"));
+          fillCapacities(data);
         };
 
         function updateBucketImage() {
@@ -1519,22 +1576,6 @@
 
         }
 
-        /* 4. LINKAGE (only if present in data) -> fills CAPACITY */
-        linkageSelect.onchange = async () => {
-          bucketSelect.innerHTML = opts("-- Select Capacity --", []);
-          bucketSelect.disabled = true;
-          if (!linkageSelect.value) return;
-
-          const data = await getFilteredData({
-            Model: modelSelect.value,
-            Arm: ArmSelect.value,
-            Bucket_Type: bucketTypeSelect.value,
-            Linkage: linkageSelect.value
-          });
-
-          fillCapacities(data);
-        };
-
         function fillCapacities(data) {
           const capacities = [...new Set(
             data.map(d => toNum(field(d, "Bucket_Capacity"))).filter(n => Number.isFinite(n) && n > 0)
@@ -1548,64 +1589,32 @@
               .join("");
 
           bucketSelect.value = "";
-          bucketSelect.disabled = false;
+          bucketSelect.disabled = capacities.length === 0;
+          if (capacities.length === 1) { bucketSelect.value = String(capacities[0]); bucketSelect.onchange(); }
         }
 
 
+        /* 5. CAPACITY -> the ONE matching CHEX row gives the specs (incl. Max Material Density) */
         document.getElementById("bucketSelect").onchange = async () => {
-
+          clearBucketSpecs();
           const capacity = getBucketCapacity();
+          if (!capacity) { calculate(); return; }
 
-          const rows = await getFilteredData({
-            Model: modelSelect.value,
-            Bucket_Type: bucketTypeSelect.value,
-            Arm: ArmSelect.value,
-            Linkage: linkageSelect.value
-          });
+          const rows = await getFilteredData(currentFilters("capacity"));
+          const d = rows.find(r => Math.abs(toNum(field(r, "Bucket_Capacity")) - capacity) < 0.0001);
 
-          console.log("Matched record:", {
-            capacity,
-            fill_factor,
-            Max_Mat_Density,
-            density
-          });
-
-          let found = false;
-
-          rows.forEach(d => {
-
-            const dbCap = toNum(field(d, "Bucket_Capacity"));
-            const selectedCap = Number(capacity);
-
-            if (Math.abs(Number(dbCap) - Number(capacity)) < 0.0001) {
-              Max_Mat_Density = d.Max_Mat_Density ?? 0;
-              Bucket_Width = d.Bucket_Width ?? 0;
-              Bucket_Weight = d.Bucket_Weight ?? 0;
-
-              // Tipping_Straight = d.Tipping_Load_Straight ?? 0;
-              // Tipping_40deg = d.Tipping_Load_40Turn ?? 0;
-              Max_Dump_Height = d.Max_Dump_Height ?? 0;
-              Lifting_Capacity = d.Lifting_Capacity ?? d["Lifting Capacity"] ?? 0;
-
-              Max_Dump_Height_4 =
-                d.Max_Dump_Height ??
-                d["Max Dump Height"] ??
-                d["Max_DumpHeight"] ??
-                d["Max_Dump_ Height"] ??
-                0;
-              found = true;
-            }
-          });
-
-          if (!found) {
-            Max_Mat_Density = 0;
-            // Tipping_Straight = 0;
-            // Tipping_40deg = 0;
-            Max_Dump_Height = 0;
-            Lifting_Capacity = 0;
+          if (d) {
+            Max_Mat_Density = d.Max_Mat_Density ?? d["Max Mat Density"] ?? d.Max_Material_Density ?? 0;
+            Bucket_Width = d.Bucket_Width ?? d["Bucket Width"] ?? 0;
+            Bucket_Weight = d.Bucket_Weight ?? d["Bucket Weight"] ?? 0;
+            Lifting_Capacity = d.Lifting_Capacity ?? d["Lifting Capacity"] ?? 0;
+            Max_Dump_Height = d.Max_Dump_Height ?? d["Max Dump Height"] ?? d["Max_DumpHeight"] ?? d["Max_Dump_ Height"] ?? 0;
+            Max_Dump_Height_4 = Max_Dump_Height;
+          } else {
+            console.warn("No CHEX row for", currentFilters("capacity"), capacity);
           }
-          // density = Number(materialSelect.value) || 0; // 🔥 ensure sync
-          // density check happens inside calculate()
+          console.log("Matched CHEX record:", d, "-> Max density", maxDensityTons(), "tons/m³");
+
           updateOutput1();
           calculate();
         };
@@ -1642,17 +1651,20 @@
 
           const opt = materialSelect.options[materialSelect.selectedIndex];
 
-          density = toNum(opt.value) || 0;          // ton/m³ ("1,8" / "1.8 t" safe)
-          fill_factor = Number(opt.dataset.fill) || 0;
+          density = toNum(opt.value) || 0;          // tons/m³ ("1,8" / "1.8 t" safe)
+          fill_factor = normFillPct(opt.dataset.fill); // MD.Filling_Rate -> %
 
           if (!density) {
             materialSelected = false;
             fill_factor = 0;
+            updateFillDisplay();
             resetOutput2();
+            resetProductivityOutputs();
             return;
           }
 
           materialSelected = true;
+          updateFillDisplay();
 
           // ✅ VALIDATION -> stop everything if density is too high
           if (isDensityExceeded()) {
@@ -1667,17 +1679,18 @@
         /* ================= DENSITY LIMIT LOCK ================= */
         let densityLocked = false;
 
-        // UNITS: Material dropdown density is in ton/m³; Max_Mat_Density (Section 1,
-        // from the CHEX table) is in kg/m³. Convert ton/m³ -> kg/m³ (x1000) before comparing.
-        const TON_TO_KG = 1000;
-
-        function materialDensityKg() {
-          return (Number(density) || 0) * TON_TO_KG;
+        // UNITS: the whole application shows density in tons/m³.
+        // CHEX.Max_Mat_Density may be stored in kg/m³ (e.g. 1600) -> converted to tons/m³ (1.60).
+        function maxDensityTons() {
+          const v = toNum(Max_Mat_Density);
+          if (!Number.isFinite(v) || v <= 0) return 0;
+          return v > 20 ? v / 1000 : v;   // > 20 can only be kg/m³
         }
+        const fmtDen = v => (Number(v) || 0).toFixed(2);
 
         function isDensityExceeded() {
-          const limitKg = Number(Max_Mat_Density) || 0;          // kg/m³
-          return materialSelected && limitKg > 0 && materialDensityKg() > limitKg;
+          const limit = maxDensityTons();                        // tons/m³
+          return materialSelected && limit > 0 && (Number(density) || 0) > limit + 1e-9;
         }
 
         // Disable every input/select in Section 2 (JOB INFORMATION).
@@ -1704,11 +1717,11 @@
     <div class="density-alert">⚠ Material Density is selected higher than allowed</div>
     <div class="form-row-out2 highlight-box">
       <label>Selected Material Density</label>
-      <div class="value-box-1" style="color:#d00000; font-weight:bold;">${density} ton/m³ (${materialDensityKg().toFixed(0)} kg/m³)</div>
+      <div class="value-box-1" style="color:#d00000; font-weight:bold;">${fmtDen(density)} tons/m³</div>
     </div>
     <div class="form-row-out2 highlight-box">
       <label>Max Allowed Density</label>
-      <div class="value-box-1">${(Number(Max_Mat_Density) || 0).toFixed(0)} kg/m³</div>
+      <div class="value-box-1">${fmtDen(maxDensityTons())} tons/m³</div>
     </div>
   `;
 
@@ -1752,7 +1765,7 @@
 
             const name = d.Material || d.material;
             const density = d.Density || d.density;
-            const fill_factor = d.Filling_Rate || d.fill_factor;
+            const fill_factor = d.Filling_Rate ?? d["Filling Rate"] ?? d.FillingRate ?? d.fill_factor;
 
             if (name && density !== undefined) {
 
@@ -1768,7 +1781,7 @@
               `<option 
         value="${m.density}" 
         data-fill="${m.fill_factor}">
-        ${m.name} (${m.density} ton/m³)
+        ${m.name} (${m.density} tons/m³)
      </option>`
             ).join("");
 
@@ -1806,14 +1819,16 @@
 </div>
 
 <div class="form-row highlight-box">
-  <label>Max Material Density (kg/m³) </label>
-  <div class="value-box">${(Number(Max_Mat_Density) || 0).toFixed(0)} kg/m³</div>
+  <label>Max Material Density (tons/m³) </label>
+  <div class="value-box">${fmtDen(maxDensityTons())} tons/m³</div>
 </div>
 
+<!-- Lifting Capacity row hidden
 <div class="form-row highlight-box">
-  <label>Lifting Capacity (ton) </label>
+  <label>Lifting Capacity (tons) </label>
   <div class="value-box">${(Number(Lifting_Capacity) || 0).toFixed(2)} tons</div>
 </div>
+-->
 
 
 `;
@@ -1951,7 +1966,7 @@
           if (hourlyOutput) {
             hourlyOutput.innerHTML = `
       <table style="width:100%; text-align:center;">
-        <tr><td><b>Volume</b><br>(m³/hr)</td><td><b>Weight</b><br>(ton/hr)</td></tr>
+        <tr><td><b>Volume</b><br>(m³/hr)</td><td><b>Weight</b><br>(tons/hr)</td></tr>
         <tr><td colspan="2" style="border-bottom:2px solid #666;"></td></tr>
         <tr>
           <td>${Math.round(hour.volume).toLocaleString()}</td>
@@ -1965,7 +1980,7 @@
           if (dailyOutput) {
             dailyOutput.innerHTML = `
       <table style="width:100%; text-align:center;">
-        <tr><td><b>Volume</b><br>(m³/day)</td><td><b>Weight</b><br>(ton/day)</td></tr>
+        <tr><td><b>Volume</b><br>(m³/day)</td><td><b>Weight</b><br>(tons/day)</td></tr>
         <tr><td colspan="2" style="border-bottom:2px solid #666;"></td></tr>
         <tr>
           <td>${Math.round(day.volume).toLocaleString()}</td>
@@ -1979,7 +1994,7 @@
           if (yearlyOutput) {
             yearlyOutput.innerHTML = `
       <table style="width:100%; text-align:center;">
-        <tr><td><b>Volume</b><br>(m³/year)</td><td><b>Weight</b><br>(ton/year)</td></tr>
+        <tr><td><b>Volume</b><br>(m³/year)</td><td><b>Weight</b><br>(tons/year)</td></tr>
         <tr><td colspan="2" style="border-bottom:2px solid #666;"></td></tr>
         <tr>
           <td>${Math.round(year.volume).toLocaleString()}</td>
@@ -2007,7 +2022,7 @@
     <div class="form-row highlight-box">
       <label>⚠ WARNING</label>
       <div class="value-box" style="color:red; font-weight:bold;">
-        Material density (${materialDensityKg().toFixed(0)} kg/m³) exceeds limit (${Max_Mat_Density} kg/m³)
+        Material density (${fmtDen(density)} tons/m³) exceeds limit (${fmtDen(maxDensityTons())} tons/m³)
       </div>
     </div>
   `;
@@ -2019,14 +2034,14 @@
           if (out2) {
             // ✅ SHOW panel ONLY when we are about to fill it
             out2.style.display = "block";
-            const cycleLoad = bucket * (fillPct / 100) * density;   // m³ x fill x ton/m³
+            const cycleLoad = bucket * (fillPct / 100) * density;   // m³ x fill x tons/m³
 
             const warningDiv = document.getElementById("densityWarning");
 
             out2.innerHTML = `
   <div class="form-row-out2 highlight-box">
-    <label>Material Density (ton/m³)</label>
-    <div class="value-box-1">${density} ton/m³</div>
+    <label>Material Density (tons/m³)</label>
+    <div class="value-box-1">${fmtDen(density)} tons/m³</div>
   </div>
 
   <div class="form-row-out2 highlight-box">
@@ -2517,23 +2532,26 @@
 
           const input1 = [
             ["Model", modelSelect.value || "-"],
+            ["Quick Coupler / Direct-Fit", QuickCouplerSelect.value ? linkLabel(QuickCouplerSelect.value) : "-"],
             ["Arm Type", ArmSelect.value || "-"],
+            ["Job Application", (JobApplicationSelect.options[JobApplicationSelect.selectedIndex]?.text || "-").replace(/\s*\[.*\]\s*$/, "")],
 
             ["Bucket Type", bucketTypeSelect.value || "-"],
             ["Bucket Capacity", bucket ? `${bucket} m³` : "-"],
           ];
 
           const output1 = [
-            ["Max Material Density (kg/m³)", (Number(Max_Mat_Density) || 0).toFixed(0)],
+            ["Max Material Density (tons/m³)", fmtDen(maxDensityTons())],
             // ["Tipping Load (Straight) [ton]", fmt2(Tipping_Straight) || "-"],
             // ["Tipping Load (Full Turn) [ton]", fmt2(Tipping_40deg) || "-"],
-            ["Max Payload [ton]", fmt2((Number(Max_Mat_Density) / 1000) * bucket) || "-"],
+            ["Max Payload [tons]", fmt2(maxDensityTons() * bucket) || "-"],
             ["Max Dump Height [meters]", fmt2(Max_Dump_Height_4) || "-"],
           ];
 
           const input2 = [
-            ["Material (tons/m³)", materialSelect.value || "-"],
-            ["Filling Factor (%)", `${fill_factor}%`],
+            ["Material", materialSelect.value ? (materials.find(m => sameValue(m.density, materialSelect.value))?.name || "-") : "-"],
+            ["Material Density (tons/m³)", density ? fmtDen(density) : "-"],
+            ["Filling Factor (%) [MD]", fill_factor ? `${fmtSecs(fill_factor)}%` : "-"],
             ["Std Cycle Time (secs)", getStdCycleTime() || "-"],
             ["Corr. Mat/Work/Swing/Depth/Dump (s)",
               SECS_CORRECTION_IDS.map(id => fmtSigned(getAdjSecs(id))).join(" / ")],
@@ -2545,7 +2563,7 @@
           ];
 
           const output2 = [
-            ["Material Density (ton/m³)", density || "-"],
+            ["Material Density (tons/m³)", density ? fmtDen(density) : "-"],
             ["Bucket Fill Factor (%)", fill_factor ? `${fill_factor}%` : "-"],
             ["Cycle Load (tons)", fmt2(bucket * (fill_factor / 100) * density)],
 
