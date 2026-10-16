@@ -2284,6 +2284,22 @@
           // ================= LOGO =================
           // ================= LOGO =================
           // jsPDF needs image DATA, not a file path -> load each image first
+          // copy an <img> that is already loaded and visible on the page (no new request)
+          function imageFromElement(el) {
+            try {
+              if (!el || !el.complete || !el.naturalWidth) return null;
+              const c = document.createElement("canvas");
+              c.width = el.naturalWidth; c.height = el.naturalHeight;
+              const ctx = c.getContext("2d");
+              ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
+              ctx.drawImage(el, 0, 0);
+              return { data: c.toDataURL("image/jpeg", 0.92), w: c.width, h: c.height };
+            } catch (e) {
+              console.warn("Could not copy on-screen image:", el?.src, e);
+              return null;
+            }
+          }
+
           // try several file names in turn, return the first that loads
           async function loadFirstImage(srcs) {
             for (const src of [...new Set(srcs.filter(Boolean))]) {
@@ -2298,7 +2314,6 @@
             return new Promise(resolve => {
               if (!src) return resolve(null);
               const img = new Image();
-              img.crossOrigin = "anonymous";
               img.onload = () => {
                 try {
                   const c = document.createElement("canvas");
@@ -2326,13 +2341,17 @@
           const bucketImgSrc = document.querySelector("#bucketImageWrapper img")?.getAttribute("src") || "Images/bucket.png";
           const jobImgSrc = document.getElementById("bucketImage")?.getAttribute("src");
 
-          const [logoImg, img1, img2] = await Promise.all([
+          const img2Tried = [jobImgSrc, "Images/second.jpeg", "Images/second.jpg",
+            "Images/Second.jpeg", "Images/Second.jpg", "Images/second.png", "Images/second.JPG", "Images/second.JPEG"];
+
+          const [logoImg, img1File, img2File] = await Promise.all([
             loadImageData("Images/CNH.png"),
             loadImageData(bucketImgSrc),
-            // right-hand image: on-screen src, then common spellings of second.jpeg
-            loadFirstImage([jobImgSrc, "Images/second.jpeg", "Images/second.jpg",
-              "Images/Second.jpeg", "Images/Second.jpg", "Images/second.png", "Images/second.JPG", "Images/second.JPEG"])
+            loadFirstImage(img2Tried)
           ]);
+          // prefer the copy of what is on screen; fall back to loading the file
+          const img1 = imageFromElement(document.querySelector("#bucketImageWrapper img")) || img1File;
+          const img2 = imageFromElement(document.getElementById("bucketImage")) || img2File;
 
           // ================= LOGO =================
           if (logoImg) addFitted(doc, logoImg, 2, 0, 40, 18);
@@ -2340,10 +2359,17 @@
           // ================= TWO IMAGES (middle block) =================
           const imgTop = 70, imgH = 88, imgW = 95;
           doc.setDrawColor(200); doc.setLineWidth(0.3);
-          [[img1, 5], [img2, 110]].forEach(([im, x]) => {
-            if (!im) return;
+          [[img1, 5, [bucketImgSrc]], [img2, 110, img2Tried]].forEach(([im, x, tried]) => {
             doc.roundedRect(x, imgTop, imgW, imgH, 3, 3);
-            addFitted(doc, im, x + 3, imgTop + 3, imgW - 6, imgH - 6);
+            if (im) {
+              addFitted(doc, im, x + 3, imgTop + 3, imgW - 6, imgH - 6);
+            } else {
+              // show WHY it is empty, so the missing file can be fixed
+              doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(180, 0, 0);
+              doc.text(["Image not found. Tried:", ...[...new Set(tried.filter(Boolean))]],
+                x + 5, imgTop + 10);
+              doc.setTextColor(0, 0, 0);
+            }
           });
           doc.setDrawColor(0); doc.setLineWidth(0.2);
           // ================= TABLE TITLES =================
