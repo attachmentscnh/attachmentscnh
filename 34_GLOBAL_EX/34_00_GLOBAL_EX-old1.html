@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GLOBAL – Excavator Portfolio</title>
+  <style>
+    :root {
+  --maroon: #C3231E;
+  --black: #000000;
+  --white: #ffffff;
+
+  /* ===== "NEW" badge settings (change these to resize / retime) ===== */
+  --new-badge-size: 70px;     /* width & height of new.jpg, e.g. 50px, 90px */
+  --new-badge-gap: 12px;      /* space between the button and the badge */
+  --new-badge-speed: 1s;      /* one flash cycle; smaller = faster */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--white);
+  color: var(--black);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+  padding: 40px 20px 100px;
+}
+
+h1 {
+  color: var(--maroon);
+  margin-bottom: 40px;
+  font-size: 26px;
+  text-align: center;
+  font-weight: 700;
+}
+
+h2 {
+  color: var(--black);
+  text-align: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;   /* stack buttons vertically */
+  align-items: center;      /* center horizontally */
+  gap: 20px;                /* space between buttons */
+  margin-top: 30px;
+}
+
+.button-group button {
+  width: 350px;             /* same width for all */
+  height: 70px;             /* same height */
+  padding: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+  border: 2px solid var(--black);
+  cursor: pointer;
+  background-color: var(--maroon);
+  color: var(--white);
+  transition: 0.2s ease;
+}
+
+.button-group button:hover {
+  background-color: var(--black);
+  color: var(--white);
+}
+
+.back-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--black);
+  color: var(--white);
+  border: 2px solid var(--maroon);
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  background: var(--maroon);
+  color: var(--white);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: var(--white);
+  padding: 20px;
+  border-radius: 8px;
+  width: 260px;
+  text-align: center;
+  color: var(--black);
+  border: 2px solid var(--maroon);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.modal-buttons button {
+  width: 80px;
+  padding: 6px 0;
+  font-size: 13px;
+  background: var(--maroon);
+  color: var(--white);
+  border: 1px solid var(--black);
+  cursor: pointer;
+}
+
+.modal-buttons button:hover {
+  background: var(--black);
+}
+
+/* ===== Flashing "NEW" badge beside a button ===== */
+.btn-with-badge {
+  position: relative;           /* badge is positioned against the button */
+  display: inline-block;        /* keeps the button centred like the others */
+}
+
+.new-badge {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + var(--new-badge-gap));   /* just right of the button */
+  width: var(--new-badge-size);
+  height: var(--new-badge-size);
+  object-fit: contain;
+  transform: translateY(-50%);
+  pointer-events: none;          /* clicks pass through, never block the button */
+  animation: newFlash var(--new-badge-speed) ease-in-out infinite;
+}
+
+@keyframes newFlash {
+  0%, 100% { opacity: 1;   transform: translateY(-50%) scale(1); }
+  50%      { opacity: 0.2; transform: translateY(-50%) scale(0.9); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .new-badge { animation: none; }
+}
+
+/* small screens: badge sits on the button's top-right corner instead */
+@media (max-width: 560px) {
+  .new-badge {
+    top: 0;
+    left: auto;
+    right: 0;
+    width: calc(var(--new-badge-size) * 0.7);
+    height: calc(var(--new-badge-size) * 0.7);
+    transform: translate(35%, -35%);
+  }
+  @keyframes newFlash {
+    0%, 100% { opacity: 1;   transform: translate(35%, -35%) scale(1); }
+    50%      { opacity: 0.2; transform: translate(35%, -35%) scale(0.9); }
+  }
+}
+
+@media (max-width: 900px) {
+  .button-group {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+  </style>
+</head>
+<body>
+
+  <h1>GLOBAL – Excavator Attachments</h1>
+
+  <!-- Portfolio Details -->
+  <div class="button-group">
+    <!-- <h2>Portfolio Details</h2> -->
+    <button onclick="window.location.href='34_01_GLOBAL_EX_Summary.html'">Summary of Excavator Attachments Offering - Global</button>
+        <button onclick="window.location.href='34_02_GLOBAL_EX_Part_Numbers.html'">Summary of Excavator Part Numbers - Global</button>
+            <button onclick="window.location.href='34_03_Global_EX_Details.html'">Details of Excavator Attachments Offering - Global</button>
+    <div class="btn-with-badge">
+      <button onclick="window.location.href='./CHEX_Productivity/34_04a_Productivity Calculator password.html'">CHEX Productivity Calculator</button>
+      <!-- NEW badge: resize with --new-badge-size at the top of the <style>.
+           Image lives in CHEX_Productivity/images/new.jpg (other spellings tried as fallback) -->
+      <img class="new-badge" src="CHEX_Productivity/images/new.jpg" alt="New"
+           data-alt="CHEX_Productivity/Images/new.jpg|CHEX_Productivity/images/new.jpeg|CHEX_Productivity/images/New.jpg|new.jpg"
+           onerror="var l=this.dataset.alt.split('|'),i=+(this.dataset.i||0);if(i<l.length){this.dataset.i=i+1;this.src=l[i];}else{this.style.display='none';}">
+    </div>
+    <!-- <button onclick="window.location.href='21_02_GLOBAL_SSL_Portfolio_with_Index.html'">Navigate Portfolio (with Index)</button> -->
+    <!-- <button onclick="window.location.href='21_03_GLOBAL_SSL_Portfolio_without_Index.html'">Navigate Portfolio (without Index)</button> -->
+    <!-- <button onclick="window.location.href='21_04_GLOBAL_SSL_Attachment_Application.html'">Identify SSL Attachments by Application</button> -->
+  </div>
+
+  <!-- Search by Part Number -->
+  <!-- <div class="rounded-box">
+    <h2>Search by Part Number</h2>
+    <button onclick="window.location.href='21_05_GLOBAL_SSL_Search_Details_with_Part_Number.html'">Search Attachment Details</button>
+    <button style="visibility:hidden;"></button>
+    <button style="visibility:hidden;"></button>
+    <button style="visibility:hidden;"></button>
+  </div> -->
+
+    <!-- Brochures and Manuals -->
+  <!-- <div class="rounded-box">
+    <h2>Brochures and Manuals</h2>
+    <button onclick="window.location.href='21_06_GLOBAL_SSL_folders.html'">Brochures and Manuals</button>
+    <button style="visibility:hidden;"></button>
+    <button style="visibility:hidden;"></button>
+    <button style="visibility:hidden;"></button>
+  </div> -->
+
+
+<!-- Supplier Details -->
+<!-- <div class="rounded-box"> -->
+  <!-- <h2>Supplier Details</h2> -->
+
+  <!-- Supplier for Attachments -->
+  <!-- <button id="supplierBtn">Supplier for Attachments</button>
+
+  <div id="passwordModal1" class="modal">
+    <div class="modal-content">
+      <h3>Enter Password</h3>
+      <input type="password" id="passwordInput1" placeholder="Password" />
+      <div class="modal-buttons">
+        <button id="passwordSubmit1">Submit</button>
+        <button id="passwordCancel1">Cancel</button>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- Supplier Summary -->
+  <!-- <button id="supplierSummaryBtn">Supplier Summary</button>
+
+  <div id="passwordModal2" class="modal">
+    <div class="modal-content">
+      <h3>Enter Password</h3>
+      <input type="password" id="passwordInput2" placeholder="Password" />
+      <div class="modal-buttons">
+        <button id="passwordSubmit2">Submit</button>
+        <button id="passwordCancel2">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div> -->
+
+  <!-- Create Proposal -->
+  <!-- <div class="rounded-box">
+    <h2>Create Proposal</h2>
+    <button onclick="window.location.href='21_09_GLOBAL_SSL_Proposal.html'">Create Proposal</button>
+    <button style="visibility:hidden;"></button>
+    <button style="visibility:hidden;"></button>
+    <button style="visibility:hidden;"></button>
+  </div> -->
+
+  <!-- Print Portfolio -->
+  <!-- <div class="rounded-box">
+    <h2>Print Portfolio</h2>
+    <button onclick="window.location.href='21_10_GLOBAL_SSL_Portfolio_Print.html'">Print GLOBAL-SSL Portfolio</button>
+    <button style="visibility:hidden;"></button>
+    <button style="visibility:hidden;"></button>
+    <button style="visibility:hidden;"></button>
+  </div> -->
+
+  <button class="back-btn" onclick="window.location.href='../index.html'">⬅ Back</button>
+<script>
+
+ /* ----------------------------------- */
+/* Supplier for Attachments            */
+/* ----------------------------------- */
+
+const correctPassword1 = "GLOBAL123";
+
+const modal1 = document.getElementById("passwordModal1");
+const input1 = document.getElementById("passwordInput1");
+const btnSupplier = document.getElementById("supplierBtn");
+const btnSubmit1 = document.getElementById("passwordSubmit1");
+const btnCancel1 = document.getElementById("passwordCancel1");
+
+btnSupplier.addEventListener("click", () => {
+  modal1.style.display = "flex";
+  input1.value = "";
+  input1.focus();
+});
+
+btnSubmit1.addEventListener("click", () => {
+  if (input1.value === correctPassword1) {
+    modal1.style.display = "none";
+    window.location.href = "31_07_GLOBAL_Approved_Attachments_Vendor_Name.html";
+  } else {
+    alert("Incorrect password.");
+    input1.value = "";
+    input1.focus();
+  }
+});
+
+btnCancel1.addEventListener("click", () => {
+  modal1.style.display = "none";
+  input1.value = "";
+});
+
+modal1.addEventListener("click", (e) => {
+  if (e.target === modal1) {
+    modal1.style.display = "none";
+    input1.value = "";
+  }
+});
+
+
+/* ----------------------------------- */
+/* Supplier Summary                    */
+/* ----------------------------------- */
+
+const correctPassword2 = "GLOBAL123";
+
+const modal2 = document.getElementById("passwordModal2");
+const input2 = document.getElementById("passwordInput2");
+const btnSupplierSummary = document.getElementById("supplierSummaryBtn");
+const btnSubmit2 = document.getElementById("passwordSubmit2");
+const btnCancel2 = document.getElementById("passwordCancel2");
+
+btnSupplierSummary.addEventListener("click", () => {
+  modal2.style.display = "flex";
+  input2.value = "";
+  input2.focus();
+});
+
+btnSubmit2.addEventListener("click", () => {
+  if (input2.value === correctPassword2) {
+    modal2.style.display = "none";
+    window.location.href = "31_08_GLOBAL_Total_Unique_Vendors.html";
+  } else {
+    alert("Incorrect password.");
+    input2.value = "";
+    input2.focus();
+  }
+});
+
+btnCancel2.addEventListener("click", () => {
+  modal2.style.display = "none";
+  input2.value = "";
+});
+
+modal2.addEventListener("click", (e) => {
+  if (e.target === modal2) {
+    modal2.style.display = "none";
+    input2.value = "";
+  }
+});
+</script>
+</body>
+</html>
+
+
+
