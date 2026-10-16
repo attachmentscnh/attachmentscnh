@@ -584,7 +584,7 @@
     </div>
     <div class="grid-3">
       <div class="panel" id="input2"></div>
-      <div class="panel center"><img id="bucketImage" src="Images/second.jpg" style="width:280px; height: auto;"> </div>
+      <div class="panel center"><img id="bucketImage" src="Images/second.jpeg" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='Images/second.jpg';}" style="width:280px; height: auto;"> </div>
       <div class="panel" id="output2"></div>
     </div>
 
@@ -2284,6 +2284,16 @@
           // ================= LOGO =================
           // ================= LOGO =================
           // jsPDF needs image DATA, not a file path -> load each image first
+          // try several file names in turn, return the first that loads
+          async function loadFirstImage(srcs) {
+            for (const src of [...new Set(srcs.filter(Boolean))]) {
+              const im = await loadImageData(src);
+              if (im) { console.log("PDF image loaded:", src); return im; }
+            }
+            console.warn("None of these images could be loaded:", srcs);
+            return null;
+          }
+
           function loadImageData(src) {
             return new Promise(resolve => {
               if (!src) return resolve(null);
@@ -2314,12 +2324,14 @@
 
           // the two images shown on screen: selected bucket type + job information image
           const bucketImgSrc = document.querySelector("#bucketImageWrapper img")?.getAttribute("src") || "Images/bucket.png";
-          const jobImgSrc = document.getElementById("bucketImage")?.getAttribute("src") || "Images/second.jpg";
+          const jobImgSrc = document.getElementById("bucketImage")?.getAttribute("src");
 
           const [logoImg, img1, img2] = await Promise.all([
             loadImageData("Images/CNH.png"),
             loadImageData(bucketImgSrc),
-            loadImageData(jobImgSrc)
+            // right-hand image: on-screen src, then common spellings of second.jpeg
+            loadFirstImage([jobImgSrc, "Images/second.jpeg", "Images/second.jpg",
+              "Images/Second.jpeg", "Images/Second.jpg", "Images/second.png", "Images/second.JPG", "Images/second.JPEG"])
           ]);
 
           // ================= LOGO =================
